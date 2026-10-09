@@ -1,7 +1,6 @@
 package com.rayxaus.reeltusky.ui.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -9,9 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.rayxaus.reeltusky.data.Task
-import com.rayxaus.reeltusky.ui.tasksMock
+import com.rayxaus.reeltusky.ui.doneTaskMock
+import com.rayxaus.reeltusky.ui.doneTaskMockWithLongText
+import com.rayxaus.reeltusky.ui.taskMock
+import com.rayxaus.reeltusky.ui.taskMockWithLongText
+import com.rayxaus.reeltusky.ui.taskMockWithoutDescription
 import com.rayxaus.reeltusky.ui.theme.ReelTuskyTheme
 import java.time.Instant
 import java.time.ZoneId
@@ -66,12 +70,58 @@ fun TaskRow(
     )
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
+@Composable
+private fun TaskRowWithoutDescriptionPreview() {
+    ReelTuskyTheme {
+        TaskRow(taskMockWithoutDescription, onToggle = {}, onClick = {})
+    }
+}
+
+@PreviewLightDark
 @Composable
 private fun TaskRowPreview() {
     ReelTuskyTheme {
-        Column {
-            tasksMock.forEach { TaskRow(it, onToggle = {}, onClick = {}) }
-        }
+        TaskRow(taskMock, onToggle = {}, onClick = {})
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun TaskRowDonePreview() {
+    ReelTuskyTheme {
+        TaskRow(doneTaskMock, onToggle = {}, onClick = {})
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun TaskRowLongTextPreview() {
+    ReelTuskyTheme {
+        TaskRow(taskMockWithLongText, onToggle = {}, onClick = {})
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun TaskRowDoneLongTextPreview() {
+    ReelTuskyTheme {
+        TaskRow(doneTaskMockWithLongText, onToggle = {}, onClick = {})
+    }
+}
+
+@PreviewFontScale
+@Composable
+private fun TaskRowLongTextFontScalePreview() {
+    ReelTuskyTheme {
+        TaskRow(taskMockWithLongText, onToggle = {}, onClick = {})
+    }
+}
+
+@PreviewFontScale
+@Composable
+private fun TaskRowDoneLongTextFontScalePreview() {
+    ReelTuskyTheme {
+        TaskRow(doneTaskMockWithLongText, onToggle = {}, onClick = {})
     }
 }
