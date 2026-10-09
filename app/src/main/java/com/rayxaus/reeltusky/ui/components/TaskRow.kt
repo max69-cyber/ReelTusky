@@ -11,9 +11,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.rayxaus.reeltusky.data.Task
+import com.rayxaus.reeltusky.ui.tasksMock
 import com.rayxaus.reeltusky.ui.theme.ReelTuskyTheme
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -66,45 +66,12 @@ fun TaskRow(
     )
 }
 
-val taskMockWithoutDescription = Task(
-    id = "00000000-0000-0000-0000-000000000000",
-    title = "Learn Jetpack Compose",
-    createdAt = LocalDateTime
-        .of(2026, 10, 9, 9, 45)
-        .atZone(ZoneId.systemDefault())
-        .toInstant()
-        .toEpochMilli()
-)
-val taskMockWithDescription = Task(
-    id = "00000000-0000-0000-0000-000000000001",
-    title = "Learn about coroutines in Kotlin",
-    description = "ASAP",
-    createdAt = LocalDateTime
-        .of(2026, 8, 30, 23, 0)
-        .atZone(ZoneId.systemDefault())
-        .toInstant()
-        .toEpochMilli(),
-    isDone = true
-)
-val taskMockWithLongDescriptionAndTitle = Task(
-    id = "00000000-0000-0000-0000-000000000002",
-    title = "Go deeper in scope functions in Kotlin. And about coroutines. And about trailing lambdas.",
-    description = "Its very looooooooooong looooooooongy description. It must not fit in ONE line!",
-    createdAt = LocalDateTime
-        .of(2024, 2, 13, 11, 23)
-        .atZone(ZoneId.systemDefault())
-        .toInstant()
-        .toEpochMilli(),
-)
-
 @Preview(showBackground = true)
 @Composable
 private fun TaskRowPreview() {
     ReelTuskyTheme {
         Column {
-            TaskRow(taskMockWithoutDescription, onToggle = {}, onClick = {})
-            TaskRow(taskMockWithDescription, onToggle = {}, onClick = {})
-            TaskRow(taskMockWithLongDescriptionAndTitle, onToggle = {}, onClick = {})
+            tasksMock.forEach { TaskRow(it, onToggle = {}, onClick = {}) }
         }
     }
 }
