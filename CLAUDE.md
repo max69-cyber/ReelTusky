@@ -96,6 +96,21 @@ com.<you>.tasks/
     └── taskedit/              ← TaskEditScreen, TaskEditViewModel
 ```
 
+### Конвенция превью
+
+| Уровень | Что | Аннотация |
+|---|---|---|
+| Компонент (`ui/components/`) | каждое значимое состояние — отдельной функцией | `@PreviewLightDark` |
+| | одно «стресс»-состояние (самый длинный текст) | `@PreviewFontScale` |
+| Экран — только stateless `…Content` | каждое состояние экрана (пусто / мало / много / загрузка / ошибка) | `@PreviewLightDark` |
+| | одно основное состояние (контент) | `@PreviewScreenSizes` |
+
+- Имена: `<Компонент><Состояние>Preview` (`TaskRowDonePreview`, `TaskListContentEmptyPreview`), все превью `private`.
+- Всегда обёртка `ReelTuskyTheme { }`; компонент без своего фона — дополнительно в `Surface`.
+- Данные — только именованные моки из `ui/PreviewData.kt`; колбэки — пустые лямбды с именованными аргументами.
+- Stateful `…Screen` (с ViewModel) превью не делаем.
+- Своих multipreview-аннотаций пока нет. `@PreviewDynamicColors` не используем; RTL/локали — на Этапе 9.
+
 ---
 
 ## ✅ Чек-лист
