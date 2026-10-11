@@ -122,25 +122,25 @@ com.rayxaus.reeltusky/
 Коммит после каждого этапа (маленькие логичные коммиты — это портфолио).
 
 ### Этап 0. Проект
-- [ ] Новый проект: *Empty Activity* (Compose), minSdk 26+.
-- [ ] `git init`, в `.gitignore` добавить `.kotlin` и `/.idea`. Первый коммит, репозиторий на GitHub.
-- [ ] Обновить устаревшие версии в `libs.versions.toml` (lifecycle, activity-compose — Studio подсветит).
-- [ ] Создать пакеты по целевой структуре (пустые — заполняются по ходу).
+- [x] Новый проект: *Empty Activity* (Compose), minSdk 26+.
+- [x] `git init`, в `.gitignore` добавить `.kotlin` и `/.idea`. Первый коммит, репозиторий на GitHub.
+- [x] Обновить устаревшие версии в `libs.versions.toml` (lifecycle, activity-compose — Studio подсветит).
+- [x] Создать пакеты по целевой структуре (пустые — заполняются по ходу).
 - **Готово, когда:** приложение запускается, проект на GitHub.
 
 ### Этап 1. Модель и stateless UI
 - **Изучить:** `data class`, `copy`, UUID, `@Preview` с тестовыми данными, `Checkbox`, `Card`/`ListItem`.
-- [ ] `Task`: `id: String`, `title: String`, `isDone: Boolean`, `createdAt: Long` (можно добавить `description`).
-- [ ] `TaskRow(task, onToggle, onClick)` — stateless компонент строки.
-- [ ] `TaskListContent(tasks, onToggle, onTaskClick, onAddClick)` — `Scaffold` + `LazyColumn` с `key = { it.id }` + FAB.
-- [ ] Превью: пустой список, 1 задача, 30 задач, очень длинное название, выполненная задача, тёмная тема.
-- [ ] Пустое состояние («Задач пока нет»).
+- [x] `Task`: `id: String`, `title: String`, `isDone: Boolean`, `createdAt: Long` (можно добавить `description`).
+- [x] `TaskRow(task, onToggle, onClick)` — stateless компонент строки.
+- [x] `TaskListContent(tasks, onToggle, onTaskClick, onAddClick)` — `Scaffold` + `LazyColumn` с `key = { it.id }` + FAB.
+- [x] Превью: пустой список, 1 задача, 30 задач, очень длинное название, выполненная задача, тёмная тема.
+- [x] Пустое состояние («Задач пока нет»).
 - **Готово, когда:** все варианты видны в превью без запуска приложения.
 
 ### Этап 2. Repository (in-memory)
 - **Изучить:** `interface`, `Flow` и `StateFlow` (поток значений, `collect`), `MutableStateFlow.update {}`, `suspend`.
-- [ ] `TasksRepository`: `fun observeTasks(): Flow<List<Task>>`, `suspend fun getTaskById/addTask/updateTask(id, title, description)/setTaskDone(id, isDone)/deleteTask` — узкие методы под сценарии, `id` и `createdAt` задаёт только репозиторий.
-- [ ] `InMemoryTasksRepository` на `MutableStateFlow<List<Task>>`.
+- [x] `TasksRepository`: `fun observeTasks(): Flow<List<Task>>`, `suspend fun getTaskById/addTask/updateTask(id, title, description)/setTaskDone(id, isDone)/deleteTask` — узкие методы под сценарии, `id` и `createdAt` задаёт только репозиторий.
+- [x] `InMemoryTasksRepository` на `MutableStateFlow<List<Task>>`.
 - **Готово, когда:** понятна разница между `Flow` и `suspend`-функцией и почему список отдаётся потоком.
 - 📖 https://developer.android.com/topic/architecture/data-layer
 - 📖 https://developer.android.com/kotlin/flow
