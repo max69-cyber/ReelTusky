@@ -78,10 +78,10 @@
 ### Целевая структура пакетов
 
 ```
-com.<you>.tasks/
-├── MainActivity.kt            ← только setContent { Theme { TasksApp() } }
-├── TasksApp.kt                ← NavHost
-├── TasksApplication.kt        ← Application, держит AppContainer (до Hilt)
+com.rayxaus.reeltusky/
+├── MainActivity.kt            ← только setContent { ReelTuskyTheme { ReelTuskyApp() } }
+├── ReelTuskyApp.kt            ← корневой composable, потом NavHost
+├── ReelTuskyApplication.kt    ← Application, держит AppContainer (до Hilt)
 ├── di/AppContainer.kt
 ├── data/
 │   ├── Task.kt                ← доменная модель
@@ -90,9 +90,10 @@ com.<you>.tasks/
 │   └── local/                 ← Room: TaskEntity, TaskDao, TasksDatabase, RoomTaskRepository
 ├── navigation/Routes.kt
 └── ui/
+    ├── PreviewData.kt         ← моки только для превью (не использовать в прод-коде)
     ├── theme/
     ├── components/            ← переиспользуемое (TaskRow и т.п.)
-    ├── tasklist/              ← TaskListScreen, TaskListViewModel, TaskListUiState
+    ├── tasklist/              ← TaskListScreen, TaskListContent, TaskListViewModel, TaskListUiState
     └── taskedit/              ← TaskEditScreen, TaskEditViewModel
 ```
 
