@@ -42,5 +42,27 @@ internal val tasksMock = listOf(
     taskMockWithLongText,
     taskMockWithoutDescription,
     doneTaskMock,
-    doneTaskMockWithLongText
+    doneTaskMockWithLongText,
+)
+
+internal val singleTaskMock = listOf(
+    taskMock
+)
+
+internal val manyTasksMock = listOf(
+    taskMock,
+    taskMockWithLongText,
+    taskMockWithoutDescription,
+    doneTaskMock,
+    doneTaskMockWithLongText,
+    taskMock.copy(id = "00000000-0000-0000-0000-000000000005"),
+    taskMockWithLongText.copy(id = "00000000-0000-0000-0000-000000000006"),
+    taskMockWithoutDescription.copy(id = "00000000-0000-0000-0000-000000000007"),
+    doneTaskMock.copy(id = "00000000-0000-0000-0000-000000000008"),
+    doneTaskMockWithLongText.copy(id = "00000000-0000-0000-0000-000000000009"),
+    taskMock.copy(id = "00000000-0000-0000-0000-000000000010"),
+    taskMockWithLongText.copy(id = "00000000-0000-0000-0000-000000000011"),
+    taskMockWithoutDescription.copy(id = "00000000-0000-0000-0000-000000000012"),
+    doneTaskMock.copy(id = "00000000-0000-0000-0000-000000000013"),
+    doneTaskMockWithLongText.copy(id = "00000000-0000-0000-0000-000000000014")
 )
