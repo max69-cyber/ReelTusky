@@ -106,6 +106,8 @@ com.<you>.tasks/
 | | одно основное состояние (контент) | `@PreviewScreenSizes` |
 
 - Имена: `<Компонент><Состояние>Preview` (`TaskRowDonePreview`, `TaskListContentEmptyPreview`), все превью `private`.
+- Состояния списков: `Empty` / `SingleItem` / `ManyItems` (`TaskListContentSingleItemPreview`); основное состояние — без суффикса (`TaskListContentPreview`).
+- Моки-списки: `singleTaskMock`, `manyTasksMock`, `tasksMock`.
 - Всегда обёртка `ReelTuskyTheme { }`; компонент без своего фона — дополнительно в `Surface`.
 - Данные — только именованные моки из `ui/PreviewData.kt`; колбэки — пустые лямбды с именованными аргументами.
 - Stateful `…Screen` (с ViewModel) превью не делаем.
