@@ -66,7 +66,7 @@
 | Архитектура | **MVVM + UDF**, один `UiState` (data class) на экран | Официальная рекомендация Google, стандарт индустрии |
 | Состояние во ViewModel | `StateFlow`, в UI — `collectAsStateWithLifecycle()` | Переживает поворот экрана и навигацию |
 | Экраны | Разделение **stateful** (`TaskListScreen`, берёт ViewModel) / **stateless** (`TaskListContent`, только параметры) | Превью и тестируемость |
-| Данные | `TaskRepository` (интерфейс) → сначала in-memory, потом Room | Замена слоя данных без изменения UI |
+| Данные | `TasksRepository` (интерфейс) → сначала in-memory, потом Room | Замена слоя данных без изменения UI |
 | БД | **Room** + Flow | Стандарт |
 | id задачи | **`String` с UUID** | Планируется синхронизация с сервером — без миграции id |
 | Навигация | **Navigation Compose 2**, type-safe маршруты | Встречается почти в каждой кодовой базе |
@@ -85,9 +85,9 @@ com.rayxaus.reeltusky/
 ├── di/AppContainer.kt
 ├── data/
 │   ├── Task.kt                ← доменная модель
-│   ├── TaskRepository.kt      ← интерфейс
-│   ├── InMemoryTaskRepository.kt
-│   └── local/                 ← Room: TaskEntity, TaskDao, TasksDatabase, RoomTaskRepository
+│   ├── TasksRepository.kt     ← интерфейс
+│   ├── InMemoryTasksRepository.kt
+│   └── local/                 ← Room: TaskEntity, TaskDao, TasksDatabase, RoomTasksRepository
 ├── navigation/Routes.kt
 └── ui/
     ├── PreviewData.kt         ← моки только для превью (не использовать в прод-коде)
@@ -139,8 +139,8 @@ com.rayxaus.reeltusky/
 
 ### Этап 2. Repository (in-memory)
 - **Изучить:** `interface`, `Flow` и `StateFlow` (поток значений, `collect`), `MutableStateFlow.update {}`, `suspend`.
-- [ ] `TaskRepository`: `fun observeTasks(): Flow<List<Task>>`, `suspend fun add/update/delete/getById`.
-- [ ] `InMemoryTaskRepository` на `MutableStateFlow<List<Task>>`.
+- [ ] `TasksRepository`: `fun observeTasks(): Flow<List<Task>>`, `suspend fun getTaskById/addTask/updateTask(id, title, description)/setTaskDone(id, isDone)/deleteTask` — узкие методы под сценарии, `id` и `createdAt` задаёт только репозиторий.
+- [ ] `InMemoryTasksRepository` на `MutableStateFlow<List<Task>>`.
 - **Готово, когда:** понятна разница между `Flow` и `suspend`-функцией и почему список отдаётся потоком.
 - 📖 https://developer.android.com/topic/architecture/data-layer
 - 📖 https://developer.android.com/kotlin/flow
@@ -180,7 +180,7 @@ com.rayxaus.reeltusky/
 - [ ] `TaskEntity` + маппинг `TaskEntity ↔ Task` (обсудить: нужна ли отдельная entity или хватит одной модели).
 - [ ] `TaskDao`: `observeAll(): Flow<List<TaskEntity>>`, `upsert`, `delete`, `getById`.
 - [ ] `TasksDatabase` (singleton через `AppContainer`).
-- [ ] `RoomTaskRepository` — подменить в `AppContainer`. **UI и ViewModel не должны измениться.**
+- [ ] `RoomTasksRepository` — подменить в `AppContainer`. **UI и ViewModel не должны измениться.**
 - [ ] Включить `exportSchema` и папку схем.
 - **Готово, когда:** задачи сохраняются после закрытия приложения и перезапуска телефона.
 - 📖 https://developer.android.com/training/data-storage/room
@@ -188,7 +188,7 @@ com.rayxaus.reeltusky/
 
 ### Этап 7. Тесты
 - **Изучить:** JUnit, `kotlinx-coroutines-test` (`runTest`), fake-репозиторий, Turbine (опционально), тесты DAO на in-memory БД.
-- [ ] `FakeTaskRepository` в `test/`.
+- [ ] `FakeTasksRepository` в `test/`.
 - [ ] Unit-тесты `TaskListViewModel` (toggle, delete, состояние после добавления).
 - [ ] Instrumented-тест `TaskDao`.
 - [ ] (Опционально) Compose UI-тест одного экрана.
