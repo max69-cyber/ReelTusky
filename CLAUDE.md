@@ -149,7 +149,7 @@ com.rayxaus.reeltusky/
 - **Изучить:** `ViewModel`, `viewModelScope`, `stateIn`, `collectAsStateWithLifecycle`, `ViewModelProvider.Factory` / `viewModelFactory { initializer { } }`, класс `Application`.
 - [ ] Зависимости: `lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`.
 - [ ] `TaskListUiState` (data class: `tasks`, возможно `isLoading`).
-- [ ] `TaskListViewModel(repository)`: `uiState: StateFlow<TaskListUiState>`, методы `onToggle(id)`, `onDelete(id)`.
+- [ ] `TaskListViewModel(repository)`: `uiState: StateFlow<TaskListUiState>`, методы `onToggle(id, isDone)` (передаём намерение, а не toggle — идемпотентно), `onDelete(id)`.
 - [ ] `AppContainer` + свой `Application` (прописать в манифесте) — ручной DI.
 - [ ] `TaskListScreen` (stateful) достаёт ViewModel и передаёт данные в `TaskListContent`.
 - **Готово, когда:** задачи **переживают поворот экрана** (проверить!).

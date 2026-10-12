@@ -42,7 +42,7 @@ private fun formatTime(millis: Long): String =
 @Composable
 fun TaskRow(
     task: Task,
-    onToggle: (id: String) -> Unit,
+    onToggle: (id: String, isDone: Boolean) -> Unit,
     onClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -64,7 +64,7 @@ fun TaskRow(
         trailingContent = {
             Checkbox(
                 checked = task.isDone,
-                onCheckedChange = { onToggle(task.id) }
+                onCheckedChange = { isChecked -> onToggle(task.id, isChecked) }
             )
         }
     )
@@ -74,7 +74,7 @@ fun TaskRow(
 @Composable
 private fun TaskRowWithoutDescriptionPreview() {
     ReelTuskyTheme {
-        TaskRow(taskMockWithoutDescription, onToggle = {}, onClick = {})
+        TaskRow(taskMockWithoutDescription, onToggle = { _, _ -> }, onClick = {})
     }
 }
 
@@ -82,7 +82,7 @@ private fun TaskRowWithoutDescriptionPreview() {
 @Composable
 private fun TaskRowPreview() {
     ReelTuskyTheme {
-        TaskRow(taskMock, onToggle = {}, onClick = {})
+        TaskRow(taskMock, onToggle = { _, _ -> }, onClick = {})
     }
 }
 
@@ -90,7 +90,7 @@ private fun TaskRowPreview() {
 @Composable
 private fun TaskRowDonePreview() {
     ReelTuskyTheme {
-        TaskRow(doneTaskMock, onToggle = {}, onClick = {})
+        TaskRow(doneTaskMock, onToggle = { _, _ -> }, onClick = {})
     }
 }
 
@@ -98,7 +98,7 @@ private fun TaskRowDonePreview() {
 @Composable
 private fun TaskRowLongTextPreview() {
     ReelTuskyTheme {
-        TaskRow(taskMockWithLongText, onToggle = {}, onClick = {})
+        TaskRow(taskMockWithLongText, onToggle = { _, _ -> }, onClick = {})
     }
 }
 
@@ -106,7 +106,7 @@ private fun TaskRowLongTextPreview() {
 @Composable
 private fun TaskRowDoneLongTextPreview() {
     ReelTuskyTheme {
-        TaskRow(doneTaskMockWithLongText, onToggle = {}, onClick = {})
+        TaskRow(doneTaskMockWithLongText, onToggle = { _, _ -> }, onClick = {})
     }
 }
 
@@ -114,7 +114,7 @@ private fun TaskRowDoneLongTextPreview() {
 @Composable
 private fun TaskRowLongTextFontScalePreview() {
     ReelTuskyTheme {
-        TaskRow(taskMockWithLongText, onToggle = {}, onClick = {})
+        TaskRow(taskMockWithLongText, onToggle = { _, _ -> }, onClick = {})
     }
 }
 
@@ -122,6 +122,6 @@ private fun TaskRowLongTextFontScalePreview() {
 @Composable
 private fun TaskRowDoneLongTextFontScalePreview() {
     ReelTuskyTheme {
-        TaskRow(doneTaskMockWithLongText, onToggle = {}, onClick = {})
+        TaskRow(doneTaskMockWithLongText, onToggle = { _, _ -> }, onClick = {})
     }
 }

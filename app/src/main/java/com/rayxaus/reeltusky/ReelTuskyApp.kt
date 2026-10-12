@@ -8,7 +8,7 @@ import com.rayxaus.reeltusky.ui.tasklist.TaskListContent
 fun ReelTuskyApp() {
     TaskListContent(
         tasks = manyTasksMock,
-        onToggle = {},
+        onToggle = { _, _ -> },
         onTaskClick = {},
         onAddClick = {}
     )

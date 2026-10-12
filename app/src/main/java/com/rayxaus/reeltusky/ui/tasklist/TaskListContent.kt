@@ -46,7 +46,7 @@ private val fabPadding = 80.dp
 @Composable
 fun TaskListContent(
     tasks: List<Task>,
-    onToggle: (id: String) -> Unit,
+    onToggle: (id: String, isDone: Boolean) -> Unit,
     onTaskClick: (id: String) -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -122,7 +122,7 @@ private fun TaskListContentPreview() {
     ReelTuskyTheme {
         TaskListContent(
             tasks = tasksMock,
-            onToggle = {},
+            onToggle = { _, _ -> },
             onTaskClick = {},
             onAddClick = {}
         )
@@ -135,7 +135,7 @@ private fun TaskListContentEmptyPreview() {
     ReelTuskyTheme {
         TaskListContent(
             tasks = emptyList(),
-            onToggle = {},
+            onToggle = { _, _ -> },
             onTaskClick = {},
             onAddClick = {}
         )
@@ -148,7 +148,7 @@ private fun TaskListContentSingleItemPreview() {
     ReelTuskyTheme {
         TaskListContent(
             tasks = singleTaskMock,
-            onToggle = {},
+            onToggle = { _, _ -> },
             onTaskClick = {},
             onAddClick = {}
         )
@@ -161,7 +161,7 @@ private fun TaskListContentManyItemsPreview() {
     ReelTuskyTheme {
         TaskListContent(
             tasks = manyTasksMock,
-            onToggle = {},
+            onToggle = { _, _ -> },
             onTaskClick = {},
             onAddClick = {}
         )
@@ -174,7 +174,7 @@ private fun TaskListContentEmptyFontScalePreview() {
     ReelTuskyTheme {
         TaskListContent(
             tasks = emptyList(),
-            onToggle = {},
+            onToggle = { _, _ -> },
             onTaskClick = {},
             onAddClick = {}
         )
