@@ -6,8 +6,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.UUID
 
-class InMemoryTasksRepository : TasksRepository {
-    private val _tasks = MutableStateFlow<List<Task>>(emptyList())
+/**
+ * @param initialTasks should be provided in ascending order by [Task.createdAt]
+ */
+class InMemoryTasksRepository(initialTasks: List<Task> = emptyList()) : TasksRepository {
+    /** tasks should be sorted by [Task.createdAt] field ASC */
+    private val _tasks = MutableStateFlow<List<Task>>(initialTasks)
 
     // asStateFlow makes Flow read-only from outside
     override fun observeTasks(): Flow<List<Task>> =
