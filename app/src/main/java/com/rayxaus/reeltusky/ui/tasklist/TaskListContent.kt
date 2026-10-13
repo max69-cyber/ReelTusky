@@ -1,5 +1,9 @@
 package com.rayxaus.reeltusky.ui.tasklist
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,11 +24,16 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +57,7 @@ private val fabPadding = 80.dp
 fun TaskListContent(
     uiState: TaskListUiState,
     onToggle: (id: String, isDone: Boolean) -> Unit,
+    onDelete: (id: String) -> Unit,
     onTaskClick: (id: String) -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -113,16 +124,76 @@ fun TaskListContent(
                     )
                 ) {
                     items(uiState.tasks, key = { task -> task.id }) { task ->
-                        TaskRow(
-                            task = task,
-                            onToggle = onToggle,
-                            onClick = onTaskClick,
-                            modifier = Modifier.widthIn(max = maxListWidth)
-                        )
+                        SwipeToDeleteBox(
+                            onDelete = { onDelete(task.id) },
+                            modifier = Modifier
+                                .animateItem()
+                                .widthIn(max = maxListWidth)
+                                .clipToBounds()
+                        ) {
+                            TaskRow(
+                                task = task,
+                                onToggle = onToggle,
+                                onClick = onTaskClick,
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+// TODO: move to components package when needed outside this file!
+@Composable
+private fun SwipeToDeleteBox(
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    val swipeToDismissBoxState = rememberSwipeToDismissBoxState()
+
+    SwipeToDismissBox(
+        state = swipeToDismissBoxState,
+        enableDismissFromStartToEnd = false,
+        backgroundContent = {
+            val isSwiping = swipeToDismissBoxState.dismissDirection == SwipeToDismissBoxValue.EndToStart
+            val swipeToDismissBoxBackgroundColor = animateColorAsState(targetValue =
+                if (isSwiping)
+                    MaterialTheme.colorScheme.errorContainer
+                else
+                    MaterialTheme.colorScheme.errorContainer.copy(alpha = 0f),
+                label = "swipeToDismissBoxBackgroundColor",
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            )
+            // `by` delegates to State.getValue(), so there's no need to use .value below
+            val swipeToDismissIconColor by animateColorAsState(targetValue =
+                if (isSwiping)
+                    MaterialTheme.colorScheme.onErrorContainer
+                else
+                    MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0f),
+                label = "swipeToDismissIconColor",
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            )
+
+            Box(
+                contentAlignment = Alignment.CenterEnd,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = swipeToDismissBoxBackgroundColor.value)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_delete),
+                    contentDescription = null,
+                    tint = swipeToDismissIconColor,
+                    modifier = Modifier.padding(end = 16.dp).size(28.dp)
+                )
+            }
+        },
+        onDismiss = { onDelete() },
+        modifier = modifier
+    ) {
+        content()
     }
 }
 
@@ -134,6 +205,7 @@ private fun TaskListContentPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = tasksMock),
             onToggle = { _, _ -> },
+            onDelete = {},
             onTaskClick = {},
             onAddClick = {}
         )
@@ -147,6 +219,7 @@ private fun TaskListContentEmptyPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = emptyList()),
             onToggle = { _, _ -> },
+            onDelete = {},
             onTaskClick = {},
             onAddClick = {}
         )
@@ -160,6 +233,7 @@ private fun TaskListContentSingleItemPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = singleTaskMock),
             onToggle = { _, _ -> },
+            onDelete = {},
             onTaskClick = {},
             onAddClick = {}
         )
@@ -173,6 +247,7 @@ private fun TaskListContentManyItemsPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = manyTasksMock),
             onToggle = { _, _ -> },
+            onDelete = {},
             onTaskClick = {},
             onAddClick = {}
         )
@@ -186,6 +261,7 @@ private fun TaskListContentLoadingPreview() {
         TaskListContent(
             uiState = TaskListUiState(isLoading = true),
             onToggle = { _, _ -> },
+            onDelete = {},
             onTaskClick = {},
             onAddClick = {}
         )
@@ -199,6 +275,7 @@ private fun TaskListContentEmptyFontScalePreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = emptyList()),
             onToggle = { _, _ -> },
+            onDelete = {},
             onTaskClick = {},
             onAddClick = {}
         )
