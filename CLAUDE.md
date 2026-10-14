@@ -162,7 +162,8 @@ com.rayxaus.reeltusky/
 
 ### Этап 4. Создание и редактирование
 - **Изучить:** `TextField`/`OutlinedTextField`, состояние ввода, валидация, `imePadding()`, клавиатура (`KeyboardOptions`, `KeyboardActions`).
-- [ ] Решить: диалог / bottom sheet / отдельный экран (обсудить варианты с агентом).
+- [x] Решить: диалог / bottom sheet / отдельный экран. **Решено:** создание — `ModalBottomSheet` на экране списка
+  (`TaskListViewModel.onAdd`), редактирование — отдельный экран на Этапе 5.
 - [ ] Добавление задачи с валидацией (пустое название нельзя).
 - [x] Удаление свайпом (`SwipeToDismissBox`, приватный `SwipeToDeleteBox` в `TaskListContent`).
 - [ ] Snackbar «Отменить» **вместо подтверждения** (решено): удаляем сразу, отмена возвращает задачу целиком
@@ -172,7 +173,7 @@ com.rayxaus.reeltusky/
 
 ### Этап 5. Навигация на экран редактирования
 - **Изучить:** type-safe маршрут с аргументом, `SavedStateHandle`, `savedStateHandle.toRoute<T>()` во ViewModel.
-- [ ] `TaskEditRoute(taskId: String?)` (null = новая задача).
+- [ ] `TaskEditRoute(taskId: String)` — только для существующих задач (создание в sheet на Этапе 4).
 - [ ] `TaskEditViewModel` загружает задачу по id из репозитория.
 - [ ] В маршрут передаётся **только id**, не объект.
 - [ ] Экраны получают колбэки (`onBack`, `onTaskClick`), про `NavController` не знают.
@@ -215,6 +216,9 @@ com.rayxaus.reeltusky/
 - [ ] Напоминания: дата/время задачи, `AlarmManager`, каналы уведомлений, разрешение `POST_NOTIFICATIONS`.
 - [ ] Синхронизация с сервером: Retrofit или Ktor, kotlinx.serialization, обработка ошибок и загрузки.
 - [ ] (Для сравнения) переписать навигацию на Navigation 3 в отдельной ветке.
+- [ ] (TODO, как в TickTick) редактирование в bottom sheet: тап по задаче → `PartiallyExpanded`, свайп вверх →
+  `Expanded` «как экран» (стрелка назад вместо ручки, по `sheetState.targetValue`), свайп вниз → обратно.
+  В Navigation 2 M3-sheet не может быть пунктом назначения → удобнее делать вместе с Navigation 3 (sheet scene strategy).
 
 ---
 
