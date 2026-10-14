@@ -82,7 +82,9 @@ com.rayxaus.reeltusky/
 ├── MainActivity.kt            ← только setContent { ReelTuskyTheme { ReelTuskyApp() } }
 ├── ReelTuskyApp.kt            ← корневой composable, потом NavHost
 ├── ReelTuskyApplication.kt    ← Application, держит AppContainer (до Hilt)
-├── di/AppContainer.kt
+├── di/
+│   ├── AppContainer.kt
+│   └── AppViewModelProvider.kt ← одна фабрика ViewModel (до Hilt)
 ├── data/
 │   ├── Task.kt                ← доменная модель
 │   ├── TasksRepository.kt     ← интерфейс
@@ -147,12 +149,13 @@ com.rayxaus.reeltusky/
 
 ### Этап 3. ViewModel + UiState
 - **Изучить:** `ViewModel`, `viewModelScope`, `stateIn`, `collectAsStateWithLifecycle`, `ViewModelProvider.Factory` / `viewModelFactory { initializer { } }`, класс `Application`.
-- [ ] Зависимости: `lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`.
-- [ ] `TaskListUiState` (data class: `tasks`, возможно `isLoading`).
-- [ ] `TaskListViewModel(repository)`: `uiState: StateFlow<TaskListUiState>`, методы `onToggle(id, isDone)` (передаём намерение, а не toggle — идемпотентно), `onDelete(id)`.
-- [ ] `AppContainer` + свой `Application` (прописать в манифесте) — ручной DI.
-- [ ] `TaskListScreen` (stateful) достаёт ViewModel и передаёт данные в `TaskListContent`.
-- **Готово, когда:** задачи **переживают поворот экрана** (проверить!).
+- [x] Зависимости: `lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`.
+- [x] `TaskListUiState` (data class: `tasks`, возможно `isLoading`).
+- [x] `TaskListViewModel(repository)`: `uiState: StateFlow<TaskListUiState>`, методы `onToggle(id, isDone)` (передаём намерение, а не toggle — идемпотентно), `onDelete(id)`.
+- [x] `AppContainer` + свой `Application` (прописать в манифесте) — ручной DI.
+  Фабрика — одна на все ViewModel, в `di/AppViewModelProvider.kt` (ViewModel не знают про `Application`).
+- [x] `TaskListScreen` (stateful) достаёт ViewModel и передаёт данные в `TaskListContent`.
+- **Готово, когда:** задачи **переживают поворот экрана** (проверить!). ✅ Проверено; после смерти процесса возвращаются стартовые задачи — ожидаемо до Room.
 - 📖 https://developer.android.com/topic/architecture/ui-layer
 - 📖 https://developer.android.com/topic/libraries/architecture/viewmodel
 - 📖 https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-factories
@@ -161,8 +164,10 @@ com.rayxaus.reeltusky/
 - **Изучить:** `TextField`/`OutlinedTextField`, состояние ввода, валидация, `imePadding()`, клавиатура (`KeyboardOptions`, `KeyboardActions`).
 - [ ] Решить: диалог / bottom sheet / отдельный экран (обсудить варианты с агентом).
 - [ ] Добавление задачи с валидацией (пустое название нельзя).
-- [ ] Удаление (кнопка или `SwipeToDismissBox`) + опционально Snackbar «Отменить».
-- [ ] Отметка «выполнено».
+- [x] Удаление свайпом (`SwipeToDismissBox`, приватный `SwipeToDeleteBox` в `TaskListContent`).
+- [ ] Snackbar «Отменить» **вместо подтверждения** (решено): удаляем сразу, отмена возвращает задачу целиком
+  (нужен метод репозитория вроде `restoreTask(task)` — `addTask` создаст новый id/`createdAt`; ViewModel запоминает удалённую задачу).
+- [x] Отметка «выполнено».
 - **Готово, когда:** полный CRUD работает в памяти.
 
 ### Этап 5. Навигация на экран редактирования
