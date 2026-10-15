@@ -3,6 +3,7 @@ package com.rayxaus.reeltusky.ui.tasklist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rayxaus.reeltusky.data.TasksRepository
+import com.rayxaus.reeltusky.data.normalizeTaskTitleOrNull
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -31,6 +32,15 @@ class TaskListViewModel(private val repository: TasksRepository) : ViewModel() {
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = TaskListUiState(isLoading = true)
         )
+
+    fun onAdd(title: String, description: String) {
+        val validTitle = normalizeTaskTitleOrNull(title) ?: return
+        val formattedDescription = description.trim()
+
+        viewModelScope.launch {
+            repository.addTask(validTitle, formattedDescription)
+        }
+    }
 
     fun onToggle(id: String, isDone: Boolean) {
         // coroutine launches directly inside viewModel coroutine scope
