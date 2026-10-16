@@ -10,7 +10,6 @@ import com.rayxaus.reeltusky.di.AppViewModelProvider
 fun TaskListScreen(
     // onToggle and onDelete are handled by ViewModel, only navigation callbacks are going upper
     onTaskClick: (id: String) -> Unit,
-    onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
     // viewModel in signature for testing purposes
     viewModel: TaskListViewModel = viewModel<TaskListViewModel>(factory = AppViewModelProvider.Factory)
@@ -22,7 +21,6 @@ fun TaskListScreen(
         onToggle = viewModel::onToggle,
         onDelete = viewModel::onDelete,
         onTaskClick = onTaskClick,
-        onAddClick = onAddClick,
         modifier = modifier
     )
 }

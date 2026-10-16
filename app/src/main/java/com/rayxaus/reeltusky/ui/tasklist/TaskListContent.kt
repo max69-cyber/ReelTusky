@@ -31,6 +31,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -59,15 +62,17 @@ fun TaskListContent(
     onToggle: (id: String, isDone: Boolean) -> Unit,
     onDelete: (id: String) -> Unit,
     onTaskClick: (id: String) -> Unit,
-    onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val layoutDirection = LocalLayoutDirection.current
+    var isAddTaskSheetOpen by rememberSaveable { mutableStateOf(false) }
+    // or val isAddTaskSheetOpen = rememberSaveable { mutableStateOf(false) }
+    // but call will be `isAddTaskSheetOpen.value`
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Tasks") }) },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddClick) {
+            FloatingActionButton(onClick = { isAddTaskSheetOpen = true }) {
                 Icon(
                     painter = painterResource(R.drawable.ic_add),
                     contentDescription = "Add task"
@@ -141,6 +146,12 @@ fun TaskListContent(
                 }
             }
         }
+        if (isAddTaskSheetOpen) {
+            AddTaskSheet(
+                onDismiss = { isAddTaskSheetOpen = false },
+                onAdd = { _, _ ->  }
+            )
+        }
     }
 }
 
@@ -207,7 +218,6 @@ private fun TaskListContentPreview() {
             onToggle = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
-            onAddClick = {}
         )
     }
 }
@@ -221,7 +231,6 @@ private fun TaskListContentEmptyPreview() {
             onToggle = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
-            onAddClick = {}
         )
     }
 }
@@ -235,7 +244,6 @@ private fun TaskListContentSingleItemPreview() {
             onToggle = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
-            onAddClick = {}
         )
     }
 }
@@ -249,7 +257,6 @@ private fun TaskListContentManyItemsPreview() {
             onToggle = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
-            onAddClick = {}
         )
     }
 }
@@ -263,7 +270,6 @@ private fun TaskListContentLoadingPreview() {
             onToggle = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
-            onAddClick = {}
         )
     }
 }
@@ -277,7 +283,6 @@ private fun TaskListContentEmptyFontScalePreview() {
             onToggle = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
-            onAddClick = {}
         )
     }
 }

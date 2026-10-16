@@ -7,6 +7,5 @@ import com.rayxaus.reeltusky.ui.tasklist.TaskListScreen
 fun ReelTuskyApp() {
     TaskListScreen(
         onTaskClick = {},
-        onAddClick = {},
     )
 }
