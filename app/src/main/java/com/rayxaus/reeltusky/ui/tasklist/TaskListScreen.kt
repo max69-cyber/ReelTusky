@@ -19,6 +19,7 @@ fun TaskListScreen(
     TaskListContent(
         uiState = uiState.value,
         onToggle = viewModel::onToggle,
+        onAdd = viewModel::onAdd,
         onDelete = viewModel::onDelete,
         onTaskClick = onTaskClick,
         modifier = modifier

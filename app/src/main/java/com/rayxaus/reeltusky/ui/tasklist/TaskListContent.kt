@@ -60,6 +60,7 @@ private val fabPadding = 80.dp
 fun TaskListContent(
     uiState: TaskListUiState,
     onToggle: (id: String, isDone: Boolean) -> Unit,
+    onAdd: (title: String, description: String) -> Unit,
     onDelete: (id: String) -> Unit,
     onTaskClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
@@ -149,7 +150,7 @@ fun TaskListContent(
         if (isAddTaskSheetOpen) {
             AddTaskSheet(
                 onDismiss = { isAddTaskSheetOpen = false },
-                onAdd = { _, _ ->  }
+                onAdd = onAdd
             )
         }
     }
@@ -216,6 +217,7 @@ private fun TaskListContentPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = tasksMock),
             onToggle = { _, _ -> },
+            onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
         )
@@ -229,6 +231,7 @@ private fun TaskListContentEmptyPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = emptyList()),
             onToggle = { _, _ -> },
+            onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
         )
@@ -242,6 +245,7 @@ private fun TaskListContentSingleItemPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = singleTaskMock),
             onToggle = { _, _ -> },
+            onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
         )
@@ -255,6 +259,7 @@ private fun TaskListContentManyItemsPreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = manyTasksMock),
             onToggle = { _, _ -> },
+            onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
         )
@@ -268,6 +273,7 @@ private fun TaskListContentLoadingPreview() {
         TaskListContent(
             uiState = TaskListUiState(isLoading = true),
             onToggle = { _, _ -> },
+            onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
         )
@@ -281,6 +287,7 @@ private fun TaskListContentEmptyFontScalePreview() {
         TaskListContent(
             uiState = TaskListUiState(tasks = emptyList()),
             onToggle = { _, _ -> },
+            onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
         )
