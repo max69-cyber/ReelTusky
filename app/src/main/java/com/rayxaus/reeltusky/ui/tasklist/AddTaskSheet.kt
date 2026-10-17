@@ -19,8 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -49,14 +55,25 @@ fun AddTaskSheet(
 
         val titleState = rememberTextFieldState()
         val descriptionState = rememberTextFieldState()
+        val titleFocusRequester = remember { FocusRequester() }
+        val wasTitleAutoFocused = rememberSaveable { mutableStateOf(false) }
 
         val isCreateButtonEnabled =
             normalizeTaskTitleOrNull(titleState.text.toString()) != null
                     && sheetState.targetValue != SheetValue.Hidden
 
+        LaunchedEffect(Unit) {
+            // activity reset will not activate focus second time
+            if (!wasTitleAutoFocused.value) {
+                titleFocusRequester.requestFocus()
+                wasTitleAutoFocused.value = true
+            }
+        }
+
         AddTaskForm(
             titleState = titleState,
             descriptionState = descriptionState,
+            titleFocusRequester = titleFocusRequester,
             isCreateButtonEnabled = isCreateButtonEnabled,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
             onAddClick = {
@@ -73,6 +90,7 @@ fun AddTaskSheet(
 private fun AddTaskForm(
     titleState: TextFieldState,
     descriptionState: TextFieldState,
+    titleFocusRequester: FocusRequester,
     isCreateButtonEnabled: Boolean,
     modifier: Modifier = Modifier,
     onAddClick: () -> Unit,
@@ -88,7 +106,7 @@ private fun AddTaskForm(
             label = { Text("Title") },
             lineLimits = TextFieldLineLimits.SingleLine,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().focusRequester(titleFocusRequester)
         )
         TextField(
             state = descriptionState,
@@ -117,6 +135,7 @@ private fun AddTaskFormPreview() {
             AddTaskForm(
                 titleState = titleState,
                 descriptionState = descriptionState,
+                titleFocusRequester = remember { FocusRequester() },
                 isCreateButtonEnabled = true,
                 onAddClick = {}
             )
@@ -135,6 +154,7 @@ private fun AddTaskFormEmptyPreview() {
             AddTaskForm(
                 titleState = titleState,
                 descriptionState = descriptionState,
+                titleFocusRequester = remember { FocusRequester() },
                 isCreateButtonEnabled = false,
                 onAddClick = {}
             )
@@ -154,6 +174,7 @@ private fun AddTaskFormLongTextFontScalePreview() {
             AddTaskForm(
                 titleState = titleState,
                 descriptionState = descriptionState,
+                titleFocusRequester = remember { FocusRequester() },
                 isCreateButtonEnabled = true,
                 onAddClick = {}
             )
