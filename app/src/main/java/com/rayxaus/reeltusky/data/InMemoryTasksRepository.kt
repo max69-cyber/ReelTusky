@@ -3,6 +3,7 @@ package com.rayxaus.reeltusky.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import java.util.UUID
 
@@ -60,9 +61,17 @@ class InMemoryTasksRepository(initialTasks: List<Task> = emptyList()) : TasksRep
         }
     }
 
-    override suspend fun deleteTask(id: String) {
-        _tasks.update { tasks ->
+    override suspend fun deleteTask(id: String): Task? {
+        val previousTasks = _tasks.getAndUpdate { tasks ->
             tasks.filter { it.id != id }
+        }
+
+        return previousTasks.find { task -> task.id == id }
+    }
+
+    override suspend fun restoreTask(task: Task) {
+        _tasks.update { tasks ->
+            (tasks.filter { it.id != task.id } + task).sortedBy { it.createdAt }
         }
     }
 }

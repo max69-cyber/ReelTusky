@@ -18,6 +18,16 @@ interface TasksRepository {
     /** updates the completion state of the task; does nothing if there's no task with the given [id] */
     suspend fun setTaskDone(id: String, isDone: Boolean)
 
-    /** deletes the task with provided [id]; does nothing if there's no such task */
-    suspend fun deleteTask(id: String)
+    /**
+     * deletes the task with provided [id]
+     *
+     * @return the deleted task, or `null` if there's no task with the given [id]
+     */
+    suspend fun deleteTask(id: String): Task?
+
+    /**
+     * restores provided task; placement of task is defined by [Task.createdAt] value (asc);
+     * if task with provided [Task.id] already exists replaces it
+     */
+    suspend fun restoreTask(task: Task)
 }
