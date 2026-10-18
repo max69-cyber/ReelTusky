@@ -24,14 +24,21 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxDefaults
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,12 +70,32 @@ fun TaskListContent(
     onAdd: (title: String, description: String) -> Unit,
     onDelete: (id: String) -> Unit,
     onTaskClick: (id: String) -> Unit,
+    onRestoreDeletedTask: () -> Unit,
+    onRestoreDeletedTaskDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     var isAddTaskSheetOpen by rememberSaveable { mutableStateOf(false) }
     // or val isAddTaskSheetOpen = rememberSaveable { mutableStateOf(false) }
     // but call will be `isAddTaskSheetOpen.value`
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val lastDeletedTask = uiState.lastDeletedTask
+    LaunchedEffect(lastDeletedTask?.id) {
+        if (lastDeletedTask == null) return@LaunchedEffect
+
+        val result = snackbarHostState.showSnackbar(
+            message = "Task \"${lastDeletedTask.title}\" is deleted.",
+            actionLabel = "Undo",
+            withDismissAction = false,
+            duration = SnackbarDuration.Short
+        )
+
+        when(result) {
+            SnackbarResult.Dismissed -> onRestoreDeletedTaskDismiss()
+            SnackbarResult.ActionPerformed -> onRestoreDeletedTask()
+        }
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Tasks") }) },
@@ -80,6 +107,7 @@ fun TaskListContent(
                 )
             }
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
     ) { innerPadding ->
         when {
@@ -163,7 +191,19 @@ private fun SwipeToDeleteBox(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val swipeToDismissBoxState = rememberSwipeToDismissBoxState()
+    // `rememberSwipeToDismissBoxState` function uses `rememberSaveable` instead of `remember`,
+    // and that causes the next problem: `LazyColumn` binds this state to item by its key,
+    // and because of it a row restored after deletion will have "swiped" state again, and call
+    // the callback with onDelete again.
+    // with `remember` the state will be removed when task row disappears, and won't be
+    // saved to LazyColumn's saved state, where it can be found after deletion.
+    val defaultPositionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
+    val swipeToDismissBoxState = remember {
+        SwipeToDismissBoxState(
+            initialValue = SwipeToDismissBoxValue.Settled,
+            positionalThreshold = defaultPositionalThreshold,
+        )
+    }
 
     SwipeToDismissBox(
         state = swipeToDismissBoxState,
@@ -220,6 +260,8 @@ private fun TaskListContentPreview() {
             onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
+            onRestoreDeletedTask = {},
+            onRestoreDeletedTaskDismiss = {},
         )
     }
 }
@@ -234,6 +276,8 @@ private fun TaskListContentEmptyPreview() {
             onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
+            onRestoreDeletedTask = {},
+            onRestoreDeletedTaskDismiss = {},
         )
     }
 }
@@ -248,6 +292,8 @@ private fun TaskListContentSingleItemPreview() {
             onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
+            onRestoreDeletedTask = {},
+            onRestoreDeletedTaskDismiss = {},
         )
     }
 }
@@ -262,6 +308,8 @@ private fun TaskListContentManyItemsPreview() {
             onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
+            onRestoreDeletedTask = {},
+            onRestoreDeletedTaskDismiss = {},
         )
     }
 }
@@ -276,6 +324,8 @@ private fun TaskListContentLoadingPreview() {
             onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
+            onRestoreDeletedTask = {},
+            onRestoreDeletedTaskDismiss = {},
         )
     }
 }
@@ -290,6 +340,8 @@ private fun TaskListContentEmptyFontScalePreview() {
             onAdd = { _, _ -> },
             onDelete = {},
             onTaskClick = {},
+            onRestoreDeletedTask = {},
+            onRestoreDeletedTaskDismiss = {},
         )
     }
 }

@@ -22,6 +22,8 @@ fun TaskListScreen(
         onAdd = viewModel::onAdd,
         onDelete = viewModel::onDelete,
         onTaskClick = onTaskClick,
+        onRestoreDeletedTask = viewModel::onRestoreDeletedTask,
+        onRestoreDeletedTaskDismiss = viewModel::onRestoreDeletedTaskDismiss,
         modifier = modifier
     )
 }
