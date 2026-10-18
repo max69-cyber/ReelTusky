@@ -164,12 +164,14 @@ com.rayxaus.reeltusky/
 - **Изучить:** `TextField`/`OutlinedTextField`, состояние ввода, валидация, `imePadding()`, клавиатура (`KeyboardOptions`, `KeyboardActions`).
 - [x] Решить: диалог / bottom sheet / отдельный экран. **Решено:** создание — `ModalBottomSheet` на экране списка
   (`TaskListViewModel.onAdd`), редактирование — отдельный экран на Этапе 5.
-- [ ] Добавление задачи с валидацией (пустое название нельзя).
+- [x] Добавление задачи с валидацией (пустое название нельзя). Правило — `normalizeTaskTitleOrNull` в `data/TaskValidation.kt`
+  (trim, пустое → `null`): кнопка в `AddTaskSheet` блокируется им же, `onAdd` во ViewModel перепроверяет.
 - [x] Удаление свайпом (`SwipeToDismissBox`, приватный `SwipeToDeleteBox` в `TaskListContent`).
-- [ ] Snackbar «Отменить» **вместо подтверждения** (решено): удаляем сразу, отмена возвращает задачу целиком
-  (нужен метод репозитория вроде `restoreTask(task)` — `addTask` создаст новый id/`createdAt`; ViewModel запоминает удалённую задачу).
+- [x] Snackbar «Отменить» **вместо подтверждения**: удаляем сразу, отмена возвращает задачу целиком.
+  `deleteTask` возвращает `Task?`, `restoreTask(task)` — upsert с сортировкой по `createdAt`;
+  `lastDeletedTask` во ViewModel склеивается с задачами через `combine`, UI сообщает результат снекбара.
 - [x] Отметка «выполнено».
-- **Готово, когда:** полный CRUD работает в памяти.
+- **Готово, когда:** полный CRUD работает в памяти. ✅ (редактирование — на Этапе 5)
 
 ### Этап 5. Навигация на экран редактирования
 - **Изучить:** type-safe маршрут с аргументом, `SavedStateHandle`, `savedStateHandle.toRoute<T>()` во ViewModel.
@@ -234,6 +236,14 @@ com.rayxaus.reeltusky/
 - Старый строковый стиль навигации (`.route`, `"details/{id}"`) — не использовать.
 - Имена своих классов не должны совпадать с компонентами Material (`NavigationBarItem` и т.п.).
 - Имена пакетов — строчными (`tasklist`, не `taskList`).
+- `ModalBottomSheet` без анимации закрытия → `sheetState` создать снаружи и передать в `sheetState = …`,
+  закрывать через `hide()` + `invokeOnCompletion { onDismiss() }`.
+- `TextFieldState()` / `FocusRequester()` без `remember` → новый объект на каждой рекомпозиции.
+- `SnackbarHostState.showSnackbar` с `actionLabel` по умолчанию `Indefinite` → задавать `duration` явно.
+- `LaunchedEffect` внутри ветки `when`/`if` отменяется при смене ветки → ставить на верхний уровень.
+- Состояние элемента `LazyColumn` в `rememberSaveable` возвращается вместе с тем же `key`
+  (восстановленная задача пришла «смахнутой» и удалилась снова) → для свайпа `remember`.
+- Composable-геттеры (`SwipeToDismissBoxDefaults.positionalThreshold`) нельзя читать внутри `remember { }` → прочитать до.
 
 ---
 
