@@ -1,6 +1,7 @@
 package com.rayxaus.reeltusky
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,10 +16,13 @@ fun ReelTuskyApp() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = TaskListRoute) {
-        composable<TaskListRoute> {
+        composable<TaskListRoute> { backStackEntry ->
             TaskListScreen(
-                // TODO: tap on two or more tasks at same time opens many edit screens (dropUnlessResumed())
-                onTaskClick = { id -> navController.navigate(TaskEditRoute(taskId = id)) }
+                onTaskClick = { id ->
+                    if (backStackEntry.lifecycle.currentState == Lifecycle.State.RESUMED) {
+                        navController.navigate(TaskEditRoute(taskId = id))
+                    }
+                }
             )
         }
         composable<TaskEditRoute> { backStackEntry ->
