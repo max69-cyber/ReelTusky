@@ -12,8 +12,11 @@ interface TasksRepository {
     /** creates a new task with generated [Task.id] and [Task.createdAt]; returns its [Task.id] */
     suspend fun addTask(title: String, description: String): String
 
-    /** updates the task [title] and [description]; does nothing if there's no task with the given [id] */
-    suspend fun updateTask(id: String, title: String, description: String)
+    /**
+     * updates the task [title] and [description] and returns it;
+     * returns `null` if there's no task with the given [id]
+     */
+    suspend fun updateTask(id: String, title: String, description: String): Task?
 
     /** updates the completion state of the task; does nothing if there's no task with the given [id] */
     suspend fun setTaskDone(id: String, isDone: Boolean)

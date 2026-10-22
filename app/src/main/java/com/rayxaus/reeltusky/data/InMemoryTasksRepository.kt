@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import java.util.UUID
 
 /**
@@ -37,8 +38,8 @@ class InMemoryTasksRepository(initialTasks: List<Task> = emptyList()) : TasksRep
         id: String,
         title: String,
         description: String
-    ) {
-        _tasks.update { tasks ->
+    ): Task? {
+        return _tasks.updateAndGet { tasks ->
             tasks.map { task ->
                 if (task.id == id) {
                     task.copy(title = title, description = description)
@@ -46,7 +47,7 @@ class InMemoryTasksRepository(initialTasks: List<Task> = emptyList()) : TasksRep
                     task
                 }
             }
-        }
+        }.find { it.id == id }
     }
 
     override suspend fun setTaskDone(id: String, isDone: Boolean) {
