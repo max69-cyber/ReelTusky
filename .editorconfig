@@ -1,0 +1,4 @@
+root = true
+
+[*.{kt,kts}]
+ij_kotlin_keep_blank_lines_before_right_brace = 0
