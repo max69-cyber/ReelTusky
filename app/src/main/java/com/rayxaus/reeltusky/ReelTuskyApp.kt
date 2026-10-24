@@ -5,7 +5,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.rayxaus.reeltusky.navigation.TaskEditRoute
 import com.rayxaus.reeltusky.navigation.TaskListRoute
 import com.rayxaus.reeltusky.ui.taskedit.TaskEditScreen
@@ -17,6 +16,7 @@ fun ReelTuskyApp() {
 
     NavHost(navController = navController, startDestination = TaskListRoute) {
         composable<TaskListRoute> { backStackEntry ->
+            // backStackEntry == current entry for a route
             TaskListScreen(
                 onTaskClick = { id ->
                     if (backStackEntry.lifecycle.currentState == Lifecycle.State.RESUMED) {
@@ -25,11 +25,8 @@ fun ReelTuskyApp() {
                 }
             )
         }
-        composable<TaskEditRoute> { backStackEntry ->
-            // backStackEntry == current entry for a route, toRoute deserializes it to data class
-            val route = backStackEntry.toRoute<TaskEditRoute>()
+        composable<TaskEditRoute> {
             TaskEditScreen(
-                taskId = route.taskId,
                 onBack = { navController.navigateUp() }
             )
         }
