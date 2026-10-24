@@ -2,6 +2,7 @@ package com.rayxaus.reeltusky
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,7 +28,8 @@ fun ReelTuskyApp() {
         }
         composable<TaskEditRoute> {
             TaskEditScreen(
-                onBack = { navController.navigateUp() }
+                // on `() -> Unit` callback `dropUnlessResumed` can be used (no args)
+                onBack = dropUnlessResumed { navController.navigateUp() }
             )
         }
     }
