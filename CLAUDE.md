@@ -201,12 +201,27 @@ com.rayxaus.reeltusky/
 - 📖 https://developer.android.com/training/data-storage/room/accessing-data
 
 ### Этап 7. Тесты
-- **Изучить:** JUnit, `kotlinx-coroutines-test` (`runTest`), fake-репозиторий, Turbine (опционально), тесты DAO на in-memory БД.
-- [ ] `FakeTasksRepository` в `test/`.
-- [ ] Unit-тесты `TaskListViewModel` (toggle, delete, состояние после добавления).
-- [ ] Instrumented-тест `TaskDao`.
-- [ ] (Опционально) Compose UI-тест одного экрана.
+- **Изучить:** локальные (`test/`, JVM) vs инструментальные (`androidTest/`, устройство) тесты, JUnit 4,
+  `kotlinx-coroutines-test` (`runTest`, `Dispatchers.setMain`), fake-репозиторий, Turbine (опционально),
+  `Room.inMemoryDatabaseBuilder`, Compose testing.
+- [ ] Gradle: `kotlinx-coroutines-test` (`test` и `androidTest`), Turbine (опционально).
+- [ ] **1. `normalizeTaskTitleOrNull`** — разминка на JUnit: пробелы по краям, только пробелы, пустая строка, табы/переносы.
+- [ ] **2. `TaskListViewModel`**: `FakeTasksRepository` в `test/` + `MainDispatcherRule`.
+  Начальное `isLoading`, toggle, `onAdd` с пустым названием, delete → `lastDeletedTask`,
+  restore → задача на своём месте, двойной restore восстанавливает один раз, dismiss.
+  ⚠️ `uiState` на `WhileSubscribed` — без подписчика в тесте всегда `initialValue`.
+- [ ] **3. `TaskEditViewModel`**: `Loading` → `Loaded` / `NotFound`, `onSave` с пустым названием, повторный `onSave`
+  в `Saving` игнорируется, `Saved` + обрезанные поля в репозитории, задачу удалили → `NotFound`.
+  **Решено:** `taskId: String` в конструкторе, `toRoute()` — в фабрике (`AppViewModelProvider`);
+  ViewModel не знает о навигации, Robolectric не нужен.
+- [ ] **4. Room (instrumented, in-memory БД)**: `RoomTasksRepository` поверх настоящего `TaskDao` (или сам DAO) —
+  порядок по `created_at`, `Flow` переиспускает после изменений, `getAndDelete`/`updateAndGet` (+ `null`), `upsert` заменяет.
+- [ ] **5. Compose UI-тесты**: кнопка Save в `TaskEditContent` (выкл. при открытии → вкл. после правки → выкл. при пустом
+  названии); регрессия свайп → «Отменить» → задача вернулась и не удалилась снова.
+- Не тестируем: мапперы (их проверяет компилятор), `AppContainer`, превью, тему, сгенерированный Room-код.
+- 📖 https://developer.android.com/training/testing/fundamentals
 - 📖 https://developer.android.com/kotlin/coroutines/test
+- 📖 https://developer.android.com/develop/ui/compose/testing
 
 ### Этап 8. Hilt
 - **Изучить:** `@HiltAndroidApp`, `@AndroidEntryPoint`, `@HiltViewModel`, `@Inject`, `@Module`/`@Provides`/`@Binds`, `hiltViewModel()`.
