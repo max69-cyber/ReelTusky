@@ -127,7 +127,6 @@ fun TaskEditContent(
                     )
                 }
             }
-
         },
         modifier = modifier
     ) { innerPadding ->
@@ -135,7 +134,9 @@ fun TaskEditContent(
             TaskEditUiState.Loading -> {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
                 ) {
                     CircularProgressIndicator()
                 }
@@ -144,7 +145,9 @@ fun TaskEditContent(
             TaskEditUiState.NotFound -> {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
                 ) {
                     Text(
                         text = "Task is not found",
