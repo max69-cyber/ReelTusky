@@ -4,5 +4,10 @@ import android.app.Application
 import com.rayxaus.reeltusky.di.AppContainer
 
 class ReelTuskyApplication : Application() {
-    val appContainer: AppContainer = AppContainer()
+    lateinit var appContainer: AppContainer private set
+
+    override fun onCreate() {
+        super.onCreate()
+        appContainer = AppContainer(applicationContext)
+    }
 }
