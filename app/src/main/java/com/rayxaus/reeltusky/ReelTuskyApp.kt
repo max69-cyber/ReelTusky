@@ -28,7 +28,12 @@ fun ReelTuskyApp() {
         }
         composable<TaskEditRoute> {
             TaskEditScreen(
+                // called by application, so `dropUnlessResumed` guard can be dropped.
+                // also allows completing of the navigation when returning from background (screen will be in
+                // `STARTED` state, not `RESUMED`)
+                onSaved = { navController.navigateUp() },
                 // on `() -> Unit` callback `dropUnlessResumed` can be used (no args)
+                // guards from double taps, when screen is leaving (`RESUMED` -> `STARTED` transition)
                 onBack = dropUnlessResumed { navController.navigateUp() }
             )
         }

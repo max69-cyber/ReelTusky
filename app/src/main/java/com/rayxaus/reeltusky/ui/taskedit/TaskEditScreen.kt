@@ -10,6 +10,7 @@ import com.rayxaus.reeltusky.di.AppViewModelProvider
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskEditScreen(
+    onSaved: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TaskEditViewModel = viewModel<TaskEditViewModel>(factory = AppViewModelProvider.Factory)
@@ -19,6 +20,7 @@ fun TaskEditScreen(
     TaskEditContent(
         uiState = uiState.value,
         onSave = viewModel::onSave,
+        onSaved = onSaved,
         onBack = onBack,
         modifier = modifier,
     )

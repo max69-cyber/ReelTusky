@@ -52,6 +52,7 @@ import com.rayxaus.reeltusky.ui.theme.ReelTuskyTheme
 fun TaskEditContent(
     uiState: TaskEditUiState,
     onSave: (title: String, description: String) -> Unit,
+    onSaved: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -88,7 +89,7 @@ fun TaskEditContent(
 
     LaunchedEffect(loadedState?.savingState) {
         if (loadedState?.savingState == SavingState.Saved) {
-            onBack()
+            onSaved()
         }
     }
 
@@ -199,6 +200,7 @@ private fun TaskEditContentPreview() {
         TaskEditContent(
             uiState = TaskEditUiState.Loaded(task = taskMock),
             onSave = { _, _ -> },
+            onSaved = {},
             onBack = {},
         )
     }
@@ -211,6 +213,7 @@ private fun TaskEditContentSavingPreview() {
         TaskEditContent(
             uiState = TaskEditUiState.Loaded(task = taskMock, savingState = SavingState.Saving),
             onSave = { _, _ -> },
+            onSaved = {},
             onBack = {},
         )
     }
@@ -223,6 +226,7 @@ private fun TaskEditContentSavedPreview() {
         TaskEditContent(
             uiState = TaskEditUiState.Loaded(task = taskMock, savingState = SavingState.Saved),
             onSave = { _, _ -> },
+            onSaved = {},
             onBack = {},
         )
     }
@@ -235,6 +239,7 @@ private fun TaskEditContentNotFoundPreview() {
         TaskEditContent(
             uiState = TaskEditUiState.NotFound,
             onSave = { _, _ -> },
+            onSaved = {},
             onBack = {},
         )
     }
@@ -247,6 +252,7 @@ private fun TaskEditContentLoadingPreview() {
         TaskEditContent(
             uiState = TaskEditUiState.Loading,
             onSave = { _, _ -> },
+            onSaved = {},
             onBack = {},
         )
     }
@@ -259,6 +265,7 @@ private fun TaskEditContentFontScalePreview() {
         TaskEditContent(
             uiState = TaskEditUiState.Loaded(task = taskMockWithLongText),
             onSave = { _, _ -> },
+            onSaved = {},
             onBack = {},
         )
     }
