@@ -1,12 +1,9 @@
 package com.rayxaus.reeltusky.ui.taskedit
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.rayxaus.reeltusky.data.TasksRepository
 import com.rayxaus.reeltusky.data.normalizeTaskTitleOrNull
-import com.rayxaus.reeltusky.navigation.TaskEditRoute
 import com.rayxaus.reeltusky.ui.taskedit.TaskEditUiState.Loaded.SavingState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,14 +11,11 @@ import kotlinx.coroutines.launch
 
 class TaskEditViewModel(
     private val repository: TasksRepository,
-    // constructor arg without `val` doesn't count as class field, but as a variable
-    savedStateHandle: SavedStateHandle
+    private val taskId: String
 ) : ViewModel() {
-    /** route parameter from viewModel's Bundle-based store */
-    private val taskId = savedStateHandle.toRoute<TaskEditRoute>().taskId
-
     // private mutable state
     private val _uiState = MutableStateFlow<TaskEditUiState>(TaskEditUiState.Loading)
+
     // public readonly state
     val uiState = _uiState.asStateFlow()
 

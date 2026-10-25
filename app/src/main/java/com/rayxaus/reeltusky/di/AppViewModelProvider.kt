@@ -5,7 +5,9 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.toRoute
 import com.rayxaus.reeltusky.ReelTuskyApplication
+import com.rayxaus.reeltusky.navigation.TaskEditRoute
 import com.rayxaus.reeltusky.ui.taskedit.TaskEditViewModel
 import com.rayxaus.reeltusky.ui.tasklist.TaskListViewModel
 
@@ -19,7 +21,7 @@ object AppViewModelProvider {
         initializer {
             TaskEditViewModel(
                 repository = reelTuskyApplication().appContainer.tasksRepository,
-                savedStateHandle = createSavedStateHandle()
+                taskId = createSavedStateHandle().toRoute<TaskEditRoute>().taskId
             )
         }
     }
