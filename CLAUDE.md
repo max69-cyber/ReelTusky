@@ -185,13 +185,18 @@ com.rayxaus.reeltusky/
 
 ### Этап 6. Room
 - **Изучить:** KSP, `@Entity`, `@Dao`, `@Database`, `Flow` из DAO, `suspend` в DAO, `Room.databaseBuilder`, зачем нужны миграции.
-- [ ] Gradle: плагин KSP, `room-runtime`, `room-ktx`, `room-compiler` (через `ksp`). *Можно попросить агента настроить.*
-- [ ] `TaskEntity` + маппинг `TaskEntity ↔ Task` (обсудить: нужна ли отдельная entity или хватит одной модели).
-- [ ] `TaskDao`: `observeAll(): Flow<List<TaskEntity>>`, `upsert`, `delete`, `getById`.
-- [ ] `AppDatabase` — одна на приложение, все entity в ней (singleton через `AppContainer`).
-- [ ] `RoomTasksRepository` — подменить в `AppContainer`. **UI и ViewModel не должны измениться.**
-- [ ] Включить `exportSchema` и папку схем.
-- **Готово, когда:** задачи сохраняются после закрытия приложения и перезапуска телефона.
+- [x] Gradle: плагин KSP, `room-runtime`, `room-compiler` (через `ksp`), Room Gradle Plugin.
+  `room-ktx` не нужен: с Room 2.7+ поддержка `suspend`/`Flow` в `room-runtime`.
+- [x] `TaskEntity` + маппинг `TaskEntity ↔ Task`. **Решено:** отдельная entity (таблица `tasks`, колонки snake_case
+  через `@ColumnInfo`), маппинг — extension-функции `toTask()`/`toTaskEntity()` в `data/local/` (домен не знает о Room).
+- [x] `TaskDao` (интерфейс): `observeAll`, `getById`, `insert`, `upsert`, `updateIsDone`, `deleteById`;
+  «изменить и вернуть» — `@Transaction`-методы с телом `updateAndGet` / `getAndDelete`.
+- [x] `AppDatabase` — одна на приложение, все entity в ней (singleton через `AppContainer`, `private` + `lazy`).
+- [x] `RoomTasksRepository(taskDao)` — подменён в `AppContainer`, id и `createdAt` генерирует он. **UI и ViewModel не изменились.**
+  `AppContainer(context)` создаётся в `Application.onCreate()` (`lateinit var … private set`), стартовых задач нет.
+- [x] Включить `exportSchema` и папку схем (`room { schemaDirectory(...) }`, `app/schemas/` в git).
+- **Готово, когда:** задачи сохраняются после закрытия приложения и перезапуска телефона. ✅ Проверено
+  (добавление, выполнено, редактирование, удаление + «Отменить»; первый запуск — пустой список).
 - 📖 https://developer.android.com/training/data-storage/room
 - 📖 https://developer.android.com/training/data-storage/room/accessing-data
 
@@ -245,6 +250,10 @@ com.rayxaus.reeltusky/
 - Состояние элемента `LazyColumn` в `rememberSaveable` возвращается вместе с тем же `key`
   (восстановленная задача пришла «смахнутой» и удалилась снова) → для свайпа `remember`.
 - Composable-геттеры (`SwipeToDismissBoxDefaults.positionalThreshold`) нельзя читать внутри `remember { }` → прочитать до.
+- `Context` в `Application` не готов в конструкторе / инициализаторах полей → создавать зависимости в `onCreate()`
+  (`lateinit var`); долгоживущим объектам (БД, контейнер) — только `applicationContext`, не Activity.
+- В SQL у `@Query` — имена колонок и таблицы (`created_at`, `tasks`), а не свойств Kotlin (`createdAt`, `TaskEntity`).
+- В version catalog `name` — полное имя артефакта (`room-runtime`, не `runtime`).
 
 ---
 
