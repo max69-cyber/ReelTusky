@@ -89,7 +89,7 @@ com.rayxaus.reeltusky/
 │   ├── Task.kt                ← доменная модель
 │   ├── TasksRepository.kt     ← интерфейс
 │   ├── InMemoryTasksRepository.kt
-│   └── local/                 ← Room: TaskEntity, TaskDao, TasksDatabase, RoomTasksRepository
+│   └── local/                 ← Room: TaskEntity, TaskDao, AppDatabase, RoomTasksRepository
 ├── navigation/Routes.kt
 └── ui/
     ├── PreviewData.kt         ← моки только для превью (не использовать в прод-коде)
@@ -188,7 +188,7 @@ com.rayxaus.reeltusky/
 - [ ] Gradle: плагин KSP, `room-runtime`, `room-ktx`, `room-compiler` (через `ksp`). *Можно попросить агента настроить.*
 - [ ] `TaskEntity` + маппинг `TaskEntity ↔ Task` (обсудить: нужна ли отдельная entity или хватит одной модели).
 - [ ] `TaskDao`: `observeAll(): Flow<List<TaskEntity>>`, `upsert`, `delete`, `getById`.
-- [ ] `TasksDatabase` (singleton через `AppContainer`).
+- [ ] `AppDatabase` — одна на приложение, все entity в ней (singleton через `AppContainer`).
 - [ ] `RoomTasksRepository` — подменить в `AppContainer`. **UI и ViewModel не должны измениться.**
 - [ ] Включить `exportSchema` и папку схем.
 - **Готово, когда:** задачи сохраняются после закрытия приложения и перезапуска телефона.
