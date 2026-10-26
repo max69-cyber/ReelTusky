@@ -116,6 +116,16 @@ com.rayxaus.reeltusky/
 - Stateful `…Screen` (с ViewModel) превью не делаем.
 - Своих multipreview-аннотаций пока нет. `@PreviewDynamicColors` не используем; RTL/локали — на Этапе 9.
 
+### Конвенция тестов
+
+- Структура зеркалит `main`: тест в том же пакете, файл `<Класс>Test` (`data/TaskValidationTest.kt`).
+  Общие fake-классы и правила — пакет `testing/` внутри `test/`.
+- Имена методов — **смешанный стиль**:
+  - `test/` (JVM): предложение в обратных кавычках — ``fun `blank title returns null`()``;
+  - `androidTest/` (устройство): без пробелов — `fun getAndDelete_missingId_returnsNull()`
+    (пробелы в именах методов поддерживаются только с API 30, а `minSdk` 26).
+- Внутри теста — Arrange → Act → Assert, одно поведение на тест; `assertEquals(expected, actual)`.
+
 ---
 
 ## ✅ Чек-лист
