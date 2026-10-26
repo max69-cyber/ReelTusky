@@ -1,19 +1,23 @@
-package com.rayxaus.reeltusky.data
+package com.rayxaus.reeltusky.testing
 
+import com.rayxaus.reeltusky.data.Task
+import com.rayxaus.reeltusky.data.TasksRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
-import java.util.UUID
 
-/**
- * @param initialTasks should be provided in ascending order by [Task.createdAt]
- */
-class InMemoryTasksRepository(initialTasks: List<Task> = emptyList()) : TasksRepository {
+class FakeTasksRepository(initialTasks: List<Task> = emptyList()) : TasksRepository {
+    private var counter = 0
+    private var lastUsedCreatedAt: Long = initialTasks.maxOfOrNull { it.createdAt } ?: 0
+
     /** tasks should be sorted by [Task.createdAt] field ASC */
-    private val _tasks = MutableStateFlow<List<Task>>(initialTasks)
+    private val _tasks = MutableStateFlow<List<Task>>(initialTasks.sortedBy { it.createdAt })
+
+    /** public field of tasks for testing */
+    val tasks: List<Task> get() = _tasks.value
 
     // asStateFlow makes Flow read-only from outside
     override fun observeTasks(): Flow<List<Task>> =
@@ -24,9 +28,9 @@ class InMemoryTasksRepository(initialTasks: List<Task> = emptyList()) : TasksRep
 
     override suspend fun addTask(title: String, description: String): String {
         val newTask = Task(
-            id = UUID.randomUUID().toString(),
+            id = "fake_${counter++}",
             title = title,
-            createdAt = System.currentTimeMillis(),
+            createdAt = ++lastUsedCreatedAt + 1,
             description = description,
         )
         _tasks.update { it + newTask }
