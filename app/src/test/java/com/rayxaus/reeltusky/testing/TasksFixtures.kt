@@ -11,3 +11,11 @@ fun generateTaskListFixture(taskCount: Int) = List(taskCount) { index ->
         isDone = index % 2 == 0
     )
 }
+
+fun generateTaskFixture(id: String = "1", isDone: Boolean = false) = Task(
+    id = id,
+    title = "Task 1",
+    createdAt = 1.toLong(),
+    description = "Description 1",
+    isDone = isDone,
+)
