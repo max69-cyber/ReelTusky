@@ -124,9 +124,16 @@ class TaskEditViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.onSave(title = "New title", description = "New description")
+        runCurrent()
 
         assertEquals(listOf(task), repository.tasks)
-        assertEquals(TaskEditUiState.Loading, viewModel.uiState.value)
+        assertEquals(
+            TaskEditUiState.Loaded(
+                task = task,
+                savingState = SavingState.Idle
+            ),
+            viewModel.uiState.value
+        )
     }
 
     @Test
