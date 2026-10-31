@@ -7,6 +7,7 @@ import com.rayxaus.reeltusky.testing.generateTaskFixture
 import com.rayxaus.reeltusky.ui.taskedit.TaskEditUiState.Loaded.SavingState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -26,6 +27,14 @@ class TaskEditViewModelTest {
     private fun createViewModel(taskId: String = task.id) =
         TaskEditViewModel(repository, taskId)
 
+    private fun TestScope.createAndInitViewModel(taskId: String = task.id): TaskEditViewModel {
+        val viewModel = createViewModel(taskId)
+        // completes init coroutine
+        runCurrent()
+
+        return viewModel
+    }
+
     @Before
     fun setUp() {
         repository = FakeTasksRepository(listOf(task))
@@ -43,17 +52,14 @@ class TaskEditViewModelTest {
 
     @Test
     fun `sets NotFound if the task doesn't exist`() = runTest {
-        val viewModel = createViewModel(taskId = "not_existing_task_id")
-
-        runCurrent()
+        val viewModel = createAndInitViewModel(taskId = "not_existing_task_id")
         assertEquals(TaskEditUiState.NotFound, viewModel.uiState.value)
     }
 
     @Test
     fun `sets Loaded with Idle state and task from the repository`() = runTest {
-        val viewModel = createViewModel()
+        val viewModel = createAndInitViewModel()
 
-        runCurrent()
         assertEquals(
             TaskEditUiState.Loaded(
                 task = task,
@@ -67,10 +73,7 @@ class TaskEditViewModelTest {
 
     @Test
     fun `onSave sets Saving before the repository call`() = runTest {
-        val viewModel = createViewModel()
-
-        // completes init
-        runCurrent()
+        val viewModel = createAndInitViewModel()
 
         viewModel.onSave(title = "New title", description = "New description")
 
@@ -87,11 +90,8 @@ class TaskEditViewModelTest {
 
     @Test
     fun `onSave after success update sets Saved state and updated task`() = runTest {
-        val viewModel = createViewModel()
+        val viewModel = createAndInitViewModel()
         val updatedTask = task.copy(title = "New title", description = "New description")
-
-        // completes init
-        runCurrent()
 
         viewModel.onSave(title = updatedTask.title, description = updatedTask.description)
         runCurrent()
@@ -108,10 +108,7 @@ class TaskEditViewModelTest {
 
     @Test
     fun `onSave sets state to NotFound if the task was deleted while editing`() = runTest {
-        val viewModel = createViewModel()
-
-        // completes init
-        runCurrent()
+        val viewModel = createAndInitViewModel()
 
         repository.deleteTask(task.id)
 
@@ -133,13 +130,51 @@ class TaskEditViewModelTest {
     }
 
     @Test
-    fun `onSave not initiating update more than one time`() = runTest {
-        val viewModel = createViewModel()
+    fun `onSave does nothing if task isn't found`() = runTest {
+        val viewModel = createAndInitViewModel(taskId = "not_existing_task_id")
+
+        viewModel.onSave(title = "New title", description = "New description")
+
+        assertEquals(listOf(task), repository.tasks)
+        assertEquals(TaskEditUiState.NotFound, viewModel.uiState.value)
+    }
+
+    @Test
+    fun `onSave does nothing if task already saved`() = runTest {
+        val viewModel = createAndInitViewModel()
+        val savedTask = task.copy(title = "New title", description = "New description")
+
+        viewModel.onSave(title = savedTask.title, description = savedTask.description)
+        runCurrent()
+
+        viewModel.onSave(title = "Second update title", description = "Second update description")
+
+        assertEquals(listOf(savedTask), repository.tasks)
+        assertEquals(
+            TaskEditUiState.Loaded(
+                task = savedTask,
+                savingState = SavingState.Saved
+            ),
+            viewModel.uiState.value
+        )
+
+        runCurrent()
+
+        assertEquals(listOf(savedTask), repository.tasks)
+        assertEquals(
+            TaskEditUiState.Loaded(
+                task = savedTask,
+                savingState = SavingState.Saved
+            ),
+            viewModel.uiState.value
+        )
+    }
+
+    @Test
+    fun `onSave ignores second call while saving`() = runTest {
+        val viewModel = createAndInitViewModel()
         val updatedTask = task.copy(title = "New title", description = "New description")
         val updatedTask2 = task.copy(title = "New title 2", description = "New description 2")
-
-        // completes init
-        runCurrent()
 
         viewModel.onSave(title = updatedTask.title, description = updatedTask.description)
         viewModel.onSave(title = updatedTask2.title, description = updatedTask2.description)
@@ -167,28 +202,29 @@ class TaskEditViewModelTest {
 
     @Test
     fun `onSave trims title and description`() = runTest {
-        val viewModel = createViewModel()
+        val viewModel = createAndInitViewModel()
         val untrimmedTask = task.copy(title = "\tNew title ", description = " New description\n")
         val trimmedTask = untrimmedTask.copy(
             title = untrimmedTask.title.trim(),
             description = untrimmedTask.description.trim(),
         )
 
-        // completes init
-        runCurrent()
-
         viewModel.onSave(title = untrimmedTask.title, description = untrimmedTask.description)
         runCurrent()
 
         assertEquals(listOf(trimmedTask), repository.tasks)
+        assertEquals(
+            TaskEditUiState.Loaded(
+                task = trimmedTask,
+                savingState = SavingState.Saved
+            ),
+            viewModel.uiState.value
+        )
     }
 
     @Test
-    fun `onSave does nothing when task have blank title`() = runTest {
-        val viewModel = createViewModel()
-
-        // completes init
-        runCurrent()
+    fun `onSave does nothing when task has a blank title`() = runTest {
+        val viewModel = createAndInitViewModel()
 
         viewModel.onSave(title = " \t \n ", description = "New description")
         runCurrent()
