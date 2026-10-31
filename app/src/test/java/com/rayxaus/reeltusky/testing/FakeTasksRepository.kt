@@ -30,7 +30,7 @@ class FakeTasksRepository(initialTasks: List<Task> = emptyList()) : TasksReposit
         val newTask = Task(
             id = "fake_${counter++}",
             title = title,
-            createdAt = ++lastUsedCreatedAt + 1,
+            createdAt = ++lastUsedCreatedAt,
             description = description,
         )
         _tasks.update { it + newTask }
