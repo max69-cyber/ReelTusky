@@ -59,13 +59,14 @@ class TaskDaoTest {
     // --- observeAll ---
 
     @Test
-    fun observeAll_sortsByCreatedAtAsc() = runTest {
+    fun observeAll_sortsByCreatedAtAscAndId() = runTest {
         val entity = createTaskEntityFixture(id = "1", createdAt = 100)
         val entity2 = createTaskEntityFixture(id = "2", createdAt = 200)
-        val entity3 = createTaskEntityFixture(id = "3", createdAt = 300)
+        val entity3 = createTaskEntityFixture(id = "3", createdAt = 200)
+        val entity4 = createTaskEntityFixture(id = "4", createdAt = 300)
 
-        val sortedEntities = listOf(entity, entity2, entity3)
-        seed(entity2, entity3, entity)
+        val sortedEntities = listOf(entity, entity2, entity3, entity4)
+        seed(entity3, entity2, entity4, entity)
 
         val entities = dao.observeAll().first()
 
@@ -191,7 +192,13 @@ class TaskDaoTest {
         val entity2 = createTaskEntityFixture(id = "2", createdAt = 200)
         val entity3 = createTaskEntityFixture(id = "3", createdAt = 300)
 
-        val entityToUpsert = createTaskEntityFixture(id = "2")
+        val entityToUpsert = createTaskEntityFixture(
+            id = "2",
+            title = "Updated",
+            createdAt = 200,
+            description = "Updated",
+            isDone = true,
+        )
 
         val upsertedList = listOf(entity, entityToUpsert, entity3)
         seed(entity, entity2, entity3)
