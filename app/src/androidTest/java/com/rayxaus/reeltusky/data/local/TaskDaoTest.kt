@@ -182,4 +182,23 @@ class TaskDaoTest {
         assertEquals(entities, resultList)
         assertNull(deletedEntity)
     }
+
+    // --- upsert ---
+
+    @Test
+    fun upsert_replacesExistingEntity() = runTest {
+        val entity = createTaskEntityFixture(id = "1", createdAt = 100)
+        val entity2 = createTaskEntityFixture(id = "2", createdAt = 200)
+        val entity3 = createTaskEntityFixture(id = "3", createdAt = 300)
+
+        val entityToUpsert = createTaskEntityFixture(id = "2")
+
+        val upsertedList = listOf(entity, entityToUpsert, entity3)
+        seed(entity, entity2, entity3)
+
+        dao.upsert(entityToUpsert)
+        val resultList = dao.observeAll().first()
+
+        assertEquals(upsertedList, resultList)
+    }
 }
