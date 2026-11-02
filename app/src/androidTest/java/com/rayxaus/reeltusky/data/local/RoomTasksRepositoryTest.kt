@@ -8,6 +8,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -41,11 +43,22 @@ class RoomTasksRepositoryTest {
 
         val id = repository.addTask(title, description)
 
-        val stored = requireNotNull(repository.getTaskById(id), { "task $id not found" })
+        val stored = requireNotNull(repository.getTaskById(id)) { "task $id not found" }
 
         assertEquals(title, stored.title)
         assertEquals(description, stored.description)
         assertTrue(stored.createdAt > 0)
         assertFalse(stored.isDone)
+    }
+
+    @Test
+    fun addTask_twoCallsGenerateUniqueIds() = runTest {
+        val idOne = repository.addTask("Task 1", "Description 1")
+        val idTwo = repository.addTask("Task 2", "Description 2")
+
+        assertNotEquals(idOne, idTwo)
+
+        assertNotNull(repository.getTaskById(idOne))
+        assertNotNull(repository.getTaskById(idTwo))
     }
 }
