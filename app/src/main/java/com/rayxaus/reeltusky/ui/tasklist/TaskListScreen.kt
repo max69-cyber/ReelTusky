@@ -2,9 +2,8 @@ package com.rayxaus.reeltusky.ui.tasklist
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rayxaus.reeltusky.di.AppViewModelProvider
 
 @Composable
 fun TaskListScreen(
@@ -12,7 +11,7 @@ fun TaskListScreen(
     onTaskClick: (id: String) -> Unit,
     modifier: Modifier = Modifier,
     // viewModel in signature for testing purposes
-    viewModel: TaskListViewModel = viewModel<TaskListViewModel>(factory = AppViewModelProvider.Factory)
+    viewModel: TaskListViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 

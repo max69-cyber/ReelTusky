@@ -5,14 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.rayxaus.reeltusky.data.Task
 import com.rayxaus.reeltusky.data.TasksRepository
 import com.rayxaus.reeltusky.data.normalizeTaskTitleOrNull
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class TaskListViewModel(private val repository: TasksRepository) : ViewModel() {
+@HiltViewModel
+class TaskListViewModel @Inject constructor(private val repository: TasksRepository) : ViewModel() {
     private val _lastDeletedTask = MutableStateFlow<Task?>(null)
 
     // lambda in `combine` applies to the latest values of both flows every time any of them emits
