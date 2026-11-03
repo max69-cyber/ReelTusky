@@ -57,6 +57,8 @@
 - `@Preview`, `@PreviewLightDark`, multipreview-аннотации.
 - Gradle: version catalog (`libs.versions.toml`), плагины, Sync.
 - MVVM/UDF, ручной DI, StateFlow и `stateIn`, Room/DAO/транзакции и KSP.
+- Hilt: модули, @Provides/@Binds, constructor injection, scopes, hiltViewModel и assisted injection.
+  Gradle: различие плагина/runtime/процессора, version catalog и apply false в корневом файле.
 - Тесты: JUnit 4, fake-репозиторий, `MainDispatcherRule`, `runTest`, тестовые диспетчеры, Turbine,
   Room in-memory; Compose semantics, ввод, свайпы, колбэки и синхронизация проверок с UI.
 
@@ -73,7 +75,7 @@
 | БД | **Room** + Flow | Стандарт |
 | id задачи | **`String` с UUID** | Сохраняем выбранный формат id; синхронизация вынесена во второй проект |
 | Навигация | **Navigation Compose 2**, type-safe маршруты | Встречается почти в каждой кодовой базе |
-| DI | Сначала **ручной** (`AppContainer`), потом **Hilt** | Сначала понять, что делает DI, потом автоматизировать |
+| DI | **Hilt**, после изучения ручного DI | Создание зависимостей автоматизировано; ручной контейнер и фабрика удалены |
 | Асинхронность | Coroutines + Flow, `viewModelScope` | Стандарт |
 | Структура | **Package-by-feature** | Рекомендация Google (см. Now in Android) |
 | UI-кит | Material 3 (`androidx.compose.material3`, не `material`!) | — |
@@ -84,10 +86,10 @@
 com.rayxaus.reeltusky/
 ├── MainActivity.kt            ← только setContent { ReelTuskyTheme { ReelTuskyApp() } }
 ├── ReelTuskyApp.kt            ← корневой composable, потом NavHost
-├── ReelTuskyApplication.kt    ← Application, держит AppContainer (до Hilt)
+├── ReelTuskyApplication.kt    ← Application с @HiltAndroidApp
 ├── di/
-│   ├── AppContainer.kt
-│   └── AppViewModelProvider.kt ← одна фабрика ViewModel (до Hilt)
+│   ├── DatabaseModule.kt      ← @Provides: AppDatabase и TaskDao
+│   └── RepositoryModule.kt    ← @Binds: TasksRepository → RoomTasksRepository
 ├── data/
 │   ├── Task.kt                ← доменная модель
 │   ├── TasksRepository.kt     ← интерфейс
@@ -98,7 +100,7 @@ com.rayxaus.reeltusky/
     ├── theme/
     ├── components/            ← переиспользуемое (TaskRow и т.п.)
     ├── tasklist/              ← TaskListScreen, TaskListContent, TaskListViewModel, TaskListUiState
-    └── taskedit/              ← TaskEditScreen, TaskEditViewModel
+    └── taskedit/              ← TaskEditScreen, TaskEditViewModel, TaskEditViewModelFactory
 ```
 
 ### Конвенция превью
@@ -237,15 +239,25 @@ com.rayxaus.reeltusky/
 - Дополнительно: `TaskEntityTest` проверяет сохранение всех полей при преобразовании Task → TaskEntity → Task.
 - Не расширяем покрытие ради каждой ветки: `AppContainer`, превью, тему и сгенерированный Room-код отдельно не тестируем.
 - **Этап завершён:** пользователь прогнал весь JVM- и инструментальный набор, включая UI и restore через Room;
-  все тесты зелёные (2026-11-03). Следующий этап — Hilt.
+  все тесты зелёные (2026-11-03).
 - 📖 https://developer.android.com/training/testing/fundamentals
 - 📖 https://developer.android.com/kotlin/coroutines/test
 - 📖 https://developer.android.com/develop/ui/compose/testing
 
 ### Этап 8. Hilt
 - **Изучить:** `@HiltAndroidApp`, `@AndroidEntryPoint`, `@HiltViewModel`, `@Inject`, `@Module`/`@Provides`/`@Binds`, `hiltViewModel()`.
-- [ ] Заменить `AppContainer` на Hilt-модули.
-- **Готово, когда:** ручной DI удалён, всё работает, тесты проходят.
+- [x] Подключить Hilt Gradle plugin, runtime через implementation и compiler через KSP;
+  AndroidX Compose-интеграцию — отдельно.
+- [x] `@HiltAndroidApp` на Application, `@AndroidEntryPoint` на Activity.
+- [x] Заменить `AppContainer` на `DatabaseModule` (@Provides) и `RepositoryModule` (@Binds).
+  AppDatabase, TaskDao и TasksRepository — @Singleton в SingletonComponent.
+- [x] `TaskListViewModel`: @HiltViewModel + @Inject constructor; в экране — hiltViewModel().
+- [x] `TaskEditViewModel`: @AssistedInject, @Assisted taskId и @AssistedFactory рядом с ViewModel.
+  Навигация извлекает id через backStackEntry.toRoute<TaskEditRoute>(); экран передаёт его в creationCallback.
+  Конструктор по-прежнему принимает String, ViewModel не зависит от маршрутов, существующие тесты сохранены.
+- [x] Удалить AppContainer, AppViewModelProvider и их инициализацию из Application.
+- [x] Сборка, тесты и ручная проверка списка и редактора пройдены пользователем; изменения отправлены в репозиторий.
+- **Этап завершён:** ручной DI удалён, приложение работает, тесты проходят — подтверждено пользователем.
 - 📖 https://developer.android.com/training/dependency-injection/hilt-android
 
 ### Этап 9. Иконка, README и завершение проекта
@@ -255,7 +267,7 @@ com.rayxaus.reeltusky/
 - **Готово, когда:** другой разработчик может запустить проект по README и понять его устройство.
 
 ### Граница проекта
-Тесты завершены. Остались Hilt, иконка и README; после них проект считается завершённым.
+Тесты и переход на Hilt завершены. Остались иконка и README; после них проект считается завершённым.
 Не расширяем план фильтрами, локализацией, напоминаниями, Navigation 3 или переделкой редактирования в sheet.
 Сетевой слой, авторизацию и синхронизацию с сервером оставляем для второго проекта.
 Другие Android-темы изучаем в новом, более интересном пользователю проекте; его тему выбирает пользователь.
