@@ -56,6 +56,9 @@
 - Слоты: передаётся лямбда `{ Icon(...) }`, а не вызов `Icon(...)`.
 - `@Preview`, `@PreviewLightDark`, multipreview-аннотации.
 - Gradle: version catalog (`libs.versions.toml`), плагины, Sync.
+- MVVM/UDF, ручной DI, StateFlow и `stateIn`, Room/DAO/транзакции и KSP.
+- Тесты: JUnit 4, fake-репозиторий, `MainDispatcherRule`, `runTest`, тестовые диспетчеры, Turbine,
+  Room in-memory; Compose semantics, ввод, свайпы, колбэки и синхронизация проверок с UI.
 
 ---
 
@@ -68,7 +71,7 @@
 | Экраны | Разделение **stateful** (`TaskListScreen`, берёт ViewModel) / **stateless** (`TaskListContent`, только параметры) | Превью и тестируемость |
 | Данные | `TasksRepository` (интерфейс) → сначала in-memory, потом Room | Замена слоя данных без изменения UI |
 | БД | **Room** + Flow | Стандарт |
-| id задачи | **`String` с UUID** | Планируется синхронизация с сервером — без миграции id |
+| id задачи | **`String` с UUID** | Сохраняем выбранный формат id; синхронизация вынесена во второй проект |
 | Навигация | **Navigation Compose 2**, type-safe маршруты | Встречается почти в каждой кодовой базе |
 | DI | Сначала **ручной** (`AppContainer`), потом **Hilt** | Сначала понять, что делает DI, потом автоматизировать |
 | Асинхронность | Coroutines + Flow, `viewModelScope` | Стандарт |
@@ -88,7 +91,6 @@ com.rayxaus.reeltusky/
 ├── data/
 │   ├── Task.kt                ← доменная модель
 │   ├── TasksRepository.kt     ← интерфейс
-│   ├── InMemoryTasksRepository.kt
 │   └── local/                 ← Room: TaskEntity, TaskDao, AppDatabase, RoomTasksRepository
 ├── navigation/Routes.kt
 └── ui/
@@ -114,7 +116,7 @@ com.rayxaus.reeltusky/
 - Всегда обёртка `ReelTuskyTheme { }`; компонент без своего фона — дополнительно в `Surface`.
 - Данные — только именованные моки из `ui/PreviewData.kt`; колбэки — пустые лямбды с именованными аргументами.
 - Stateful `…Screen` (с ViewModel) превью не делаем.
-- Своих multipreview-аннотаций пока нет. `@PreviewDynamicColors` не используем; RTL/локали — на Этапе 9.
+- Своих multipreview-аннотаций пока нет. `@PreviewDynamicColors` не используем; RTL/локали вне плана этого проекта.
 
 ### Конвенция тестов
 
@@ -214,21 +216,28 @@ com.rayxaus.reeltusky/
 - **Изучить:** локальные (`test/`, JVM) vs инструментальные (`androidTest/`, устройство) тесты, JUnit 4,
   `kotlinx-coroutines-test` (`runTest`, `Dispatchers.setMain`), fake-репозиторий, Turbine (опционально),
   `Room.inMemoryDatabaseBuilder`, Compose testing.
-- [ ] Gradle: `kotlinx-coroutines-test` (`test` и `androidTest`), Turbine (опционально).
-- [ ] **1. `normalizeTaskTitleOrNull`** — разминка на JUnit: пробелы по краям, только пробелы, пустая строка, табы/переносы.
-- [ ] **2. `TaskListViewModel`**: `FakeTasksRepository` в `test/` + `MainDispatcherRule`.
+- [x] Gradle: `kotlinx-coroutines-test` (`test` и `androidTest`), Turbine (подключён, используется в тесте DAO).
+- [x] **1. `normalizeTaskTitleOrNull`** — разминка на JUnit: пробелы по краям, только пробелы, пустая строка, табы/переносы.
+- [x] **2. `TaskListViewModel`**: `FakeTasksRepository` в `test/` + `MainDispatcherRule`.
   Начальное `isLoading`, toggle, `onAdd` с пустым названием, delete → `lastDeletedTask`,
   restore → задача на своём месте, двойной restore восстанавливает один раз, dismiss.
   ⚠️ `uiState` на `WhileSubscribed` — без подписчика в тесте всегда `initialValue`.
-- [ ] **3. `TaskEditViewModel`**: `Loading` → `Loaded` / `NotFound`, `onSave` с пустым названием, повторный `onSave`
+- [x] **3. `TaskEditViewModel`**: `Loading` → `Loaded` / `NotFound`, `onSave` с пустым названием, повторный `onSave`
   в `Saving` игнорируется, `Saved` + обрезанные поля в репозитории, задачу удалили → `NotFound`.
   **Решено:** `taskId: String` в конструкторе, `toRoute()` — в фабрике (`AppViewModelProvider`);
   ViewModel не знает о навигации, Robolectric не нужен.
-- [ ] **4. Room (instrumented, in-memory БД)**: `RoomTasksRepository` поверх настоящего `TaskDao` (или сам DAO) —
-  порядок по `created_at`, `Flow` переиспускает после изменений, `getAndDelete`/`updateAndGet` (+ `null`), `upsert` заменяет.
-- [ ] **5. Compose UI-тесты**: кнопка Save в `TaskEditContent` (выкл. при открытии → вкл. после правки → выкл. при пустом
-  названии); регрессия свайп → «Отменить» → задача вернулась и не удалилась снова.
-- Не тестируем: мапперы (их проверяет компилятор), `AppContainer`, превью, тему, сгенерированный Room-код.
+- [x] **4. Room (instrumented, in-memory БД)**: `RoomTasksRepository` поверх настоящего `TaskDao` (или сам DAO) —
+  порядок по `created_at ASC, id ASC`, `Flow` переиспускает после insert, `getAndDelete`/`updateAndGet` (+ `null`),
+  изменение `isDone`, замена через `upsert`. Репозиторий: добавление и уникальность id; delete → restore
+  возвращает все поля (включая `isDone = true`) и исходный порядок списка.
+- [x] **5. Compose UI-тесты**: кнопка Save в `TaskEditContent` (выкл. при открытии → вкл. после правки → выкл. при пустом
+  названии), изменение description, блокировка при `Saving`/`Saved`, состояние `Loading`, вызов `onSaved`
+  и передача введённых полей в `onSave`. Список: свайп → «Отменить» → задача видна и не удаляется снова
+  (`onDelete` вызван один раз); нажатие строки передаёт правильный id в `onTaskClick` ровно один раз.
+- Дополнительно: `TaskEntityTest` проверяет сохранение всех полей при преобразовании Task → TaskEntity → Task.
+- Не расширяем покрытие ради каждой ветки: `AppContainer`, превью, тему и сгенерированный Room-код отдельно не тестируем.
+- **Этап завершён:** пользователь прогнал весь JVM- и инструментальный набор, включая UI и restore через Room;
+  все тесты зелёные (2026-11-03). Следующий этап — Hilt.
 - 📖 https://developer.android.com/training/testing/fundamentals
 - 📖 https://developer.android.com/kotlin/coroutines/test
 - 📖 https://developer.android.com/develop/ui/compose/testing
@@ -246,7 +255,7 @@ com.rayxaus.reeltusky/
 - **Готово, когда:** другой разработчик может запустить проект по README и понять его устройство.
 
 ### Граница проекта
-После текущих тестов, Hilt, иконки и README проект считается завершённым.
+Тесты завершены. Остались Hilt, иконка и README; после них проект считается завершённым.
 Не расширяем план фильтрами, локализацией, напоминаниями, Navigation 3 или переделкой редактирования в sheet.
 Сетевой слой, авторизацию и синхронизацию с сервером оставляем для второго проекта.
 Другие Android-темы изучаем в новом, более интересном пользователю проекте; его тему выбирает пользователь.
@@ -277,6 +286,30 @@ com.rayxaus.reeltusky/
   (`lateinit var`); долгоживущим объектам (БД, контейнер) — только `applicationContext`, не Activity.
 - В SQL у `@Query` — имена колонок и таблицы (`created_at`, `tasks`), а не свойств Kotlin (`createdAt`, `TaskEntity`).
 - В version catalog `name` — полное имя артефакта (`room-runtime`, не `runtime`).
+
+### Тесты
+- `@get:Rule val composeRule` оставляем публичным: JUnit 4 нужен публичный getter.
+- `performTextInput` вставляет текст в существующее поле; для полной замены — `performTextReplacement`.
+- Нельзя вводить текст в уже выключенное поле: сначала правка в `Idle`, затем смена состояния.
+- Проверяя блокировку Save при `Saving`/`Saved`, сначала изменить название и проверить `assertIsEnabled()`.
+  Иначе тест может пройти из-за отсутствия правок, даже если проверка состояния сохранения сломана.
+- Compose-проверки (`assertIsEnabled`, `assertIsNotEnabled` и т.п.) сами синхронизируются с UI;
+  не помещать их внутрь `runOnIdle`. Обычный JUnit `assertEquals` не ждёт обработки Compose:
+  счётчик колбэка из `LaunchedEffect` проверяем в `runOnIdle`.
+- `runOnIdle` ждёт покоя UI ДО блока и выполняет его на UI-потоке; он не ждёт новую рекомпозицию,
+  вызванную присваиванием внутри блока. Само изменение тестового `mutableStateOf` допустимо и без этой обёртки.
+- `mutableStateOf` по умолчанию сравнивает значения через `equals`: `value = value.copy()` без изменений
+  не вызывает рекомпозицию и не проверяет устойчивость эффекта к повторной рекомпозиции.
+- `Saved` автоматически вызывает `onSaved`, а `onBack` связан с нажатием стрелки; не путать колбэки.
+  Back заблокирована при `Saving`, но доступна при `Saved`.
+- В тесте stateless UI тестовые колбэки обновляют входное состояние. Для Snackbar нужно заполнить
+  `lastDeletedTask`, а после Undo очистить его и вернуть задачу с тем же id.
+- `assertExists()` проверяет наличие в дереве семантики, `assertIsDisplayed()` — наличие и видимость.
+- Для Room-теста порядка удобно подготовить записи через DAO с фиксированными id и разными `createdAt`;
+  проверяемые действия выполняем через репозиторий. Быстрые `addTask` могут получить одинаковое время.
+- Fake проверяет логику ViewModel, но не SQL и работу Room: интеграционный delete → restore дополняет
+  тесты ViewModel и UI, а не заменяет их.
+
 
 ---
 
