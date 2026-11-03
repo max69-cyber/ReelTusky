@@ -5,8 +5,9 @@ import com.rayxaus.reeltusky.data.TasksRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
+import javax.inject.Inject
 
-class RoomTasksRepository(private val taskDao: TaskDao) : TasksRepository {
+class RoomTasksRepository @Inject constructor(private val taskDao: TaskDao) : TasksRepository {
     override fun observeTasks(): Flow<List<Task>> = taskDao.observeAll().map { entities ->
         entities.map { entity -> entity.toTask() }
     }

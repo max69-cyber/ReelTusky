@@ -2,7 +2,9 @@ package com.rayxaus.reeltusky
 
 import android.app.Application
 import com.rayxaus.reeltusky.di.AppContainer
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class ReelTuskyApplication : Application() {
     lateinit var appContainer: AppContainer private set
 
