@@ -97,16 +97,18 @@ class TaskEditContentTest {
 
     @Test
     fun fieldsAndButtons_disabledWhenSaving() {
-        setContentWithStateAndCallbacks(
-            uiState = {
-                TaskEditUiState.Loaded(
-                    task = taskMock,
-                    savingState = SavingState.Saving
-                )
-            },
-        )
+        val uiStateMock =
+            mutableStateOf(TaskEditUiState.Loaded(task = taskMock, savingState = SavingState.Idle))
+        val updatedTitle = "Updated title"
 
-        composeRule.onNodeWithText(taskMock.title).assertIsNotEnabled()
+        setContentWithStateAndCallbacks(uiState = { uiStateMock.value })
+
+        composeRule.onNodeWithText(taskMock.title).performTextReplacement(updatedTitle)
+        composeRule.onNodeWithContentDescription("Save").assertIsEnabled()
+
+        uiStateMock.value = uiStateMock.value.copy(savingState = SavingState.Saving)
+
+        composeRule.onNodeWithText(updatedTitle).assertIsNotEnabled()
         composeRule.onNodeWithText(taskMock.description).assertIsNotEnabled()
         composeRule.onNodeWithContentDescription("Save").assertIsNotEnabled()
         composeRule.onNodeWithContentDescription("Back").assertIsNotEnabled()
@@ -114,16 +116,18 @@ class TaskEditContentTest {
 
     @Test
     fun fieldsAndSaveButton_disabledWhenSaved() {
-        setContentWithStateAndCallbacks(
-            uiState = {
-                TaskEditUiState.Loaded(
-                    task = taskMock,
-                    savingState = SavingState.Saved
-                )
-            },
-        )
+        val uiStateMock =
+            mutableStateOf(TaskEditUiState.Loaded(task = taskMock, savingState = SavingState.Idle))
+        val updatedTitle = "Updated title"
 
-        composeRule.onNodeWithText(taskMock.title).assertIsNotEnabled()
+        setContentWithStateAndCallbacks(uiState = { uiStateMock.value })
+
+        composeRule.onNodeWithText(taskMock.title).performTextReplacement(updatedTitle)
+        composeRule.onNodeWithContentDescription("Save").assertIsEnabled()
+
+        uiStateMock.value = uiStateMock.value.copy(savingState = SavingState.Saved)
+
+        composeRule.onNodeWithText(updatedTitle).assertIsNotEnabled()
         composeRule.onNodeWithText(taskMock.description).assertIsNotEnabled()
         composeRule.onNodeWithContentDescription("Save").assertIsNotEnabled()
     }
@@ -151,16 +155,12 @@ class TaskEditContentTest {
         val updatedTitle = "Updated title"
 
         composeRule.onNodeWithText(taskMock.title).performTextReplacement(updatedTitle)
-        
-        // wait for end of recomposition
+        uiStateMock.value = uiStateMock.value.copy(savingState = SavingState.Saved)
+
+        // not Compose-based assertEquals needs to wait for recomposition manually
         composeRule.runOnIdle {
-            uiStateMock.value = uiStateMock.value.copy(savingState = SavingState.Saved)
+            assertEquals(1, onSavedCallCounter)
         }
-
-        uiStateMock.value = uiStateMock.value.copy()
-        composeRule.waitForIdle()
-
-        assertEquals(1, onSavedCallCounter)
     }
 
     @Test
