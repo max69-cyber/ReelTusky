@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.rayxaus.reeltusky.data.Task
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -60,5 +62,36 @@ class RoomTasksRepositoryTest {
 
         assertNotNull(repository.getTaskById(idOne))
         assertNotNull(repository.getTaskById(idTwo))
+    }
+
+    @Test
+    fun restoreTask_returnsTasksToItsPlace() = runTest {
+        val testTask =
+            Task(
+                id = "2",
+                title = "Task 2",
+                createdAt = 200,
+                description = "Description 2",
+                isDone = true
+            )
+        
+        val tasks = listOf(
+            Task(id = "1", title = "Task 1", createdAt = 100),
+            testTask,
+            Task(id = "3", title = "Task 3", createdAt = 300, isDone = true)
+        )
+
+        tasks.forEach { db.taskDao().insert(it.toTaskEntity()) }
+
+        val deletedTask = requireNotNull(repository.deleteTask(testTask.id))
+        val deleteResult = repository.observeTasks().first()
+
+        assertEquals(tasks.filter { it.id != testTask.id }, deleteResult)
+        assertEquals(testTask, deletedTask)
+
+        repository.restoreTask(deletedTask)
+
+        val restoreResult = repository.observeTasks().first()
+        assertEquals(tasks, restoreResult)
     }
 }
