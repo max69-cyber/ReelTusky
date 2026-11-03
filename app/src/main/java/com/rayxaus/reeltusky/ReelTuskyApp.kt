@@ -6,6 +6,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.rayxaus.reeltusky.navigation.TaskEditRoute
 import com.rayxaus.reeltusky.navigation.TaskListRoute
 import com.rayxaus.reeltusky.ui.taskedit.TaskEditScreen
@@ -26,8 +27,9 @@ fun ReelTuskyApp() {
                 }
             )
         }
-        composable<TaskEditRoute> {
+        composable<TaskEditRoute> { backStackEntry ->
             TaskEditScreen(
+                taskId = backStackEntry.toRoute<TaskEditRoute>().taskId,
                 // called by application, so `dropUnlessResumed` guard can be dropped.
                 // also allows completing of the navigation when returning from background (screen will be in
                 // `STARTED` state, not `RESUMED`)

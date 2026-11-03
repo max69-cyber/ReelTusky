@@ -5,13 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.rayxaus.reeltusky.data.TasksRepository
 import com.rayxaus.reeltusky.data.normalizeTaskTitleOrNull
 import com.rayxaus.reeltusky.ui.taskedit.TaskEditUiState.Loaded.SavingState
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class TaskEditViewModel(
+@HiltViewModel(assistedFactory = TaskEditViewModelFactory::class)
+class TaskEditViewModel @AssistedInject constructor(
     private val repository: TasksRepository,
-    private val taskId: String
+    @Assisted private val taskId: String
 ) : ViewModel() {
     // private mutable state
     private val _uiState = MutableStateFlow<TaskEditUiState>(TaskEditUiState.Loading)
