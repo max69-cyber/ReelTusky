@@ -22,6 +22,7 @@ class TaskListContentTest {
         uiState: () -> TaskListUiState = { TaskListUiState() },
         onDelete: (id: String) -> Unit = {},
         onRestoreDeletedTask: () -> Unit = {},
+        onTaskClick: (id: String) -> Unit = {},
     ) = composeRule.setContent {
         ReelTuskyTheme {
             TaskListContent(
@@ -29,7 +30,7 @@ class TaskListContentTest {
                 onToggle = { _, _ -> },
                 onAdd = { _, _ -> },
                 onDelete = onDelete,
-                onTaskClick = {},
+                onTaskClick = onTaskClick,
                 onRestoreDeletedTask = onRestoreDeletedTask,
                 onRestoreDeletedTaskDismiss = {},
             )
@@ -68,5 +69,25 @@ class TaskListContentTest {
         composeRule.onNodeWithText(taskToDelete.title).assertIsDisplayed()
 
         assertEquals(1, onDeleteCallsCount)
+    }
+
+    @Test
+    fun onTaskClick_calledOneTimeWithCorrectId() {
+        val taskToClick = taskMockWithoutDescription
+        var onTaskClickCallsCount = 0
+        var onTaskClickCalledId: String? = null
+
+        setContentWithStateAndCallbacks(
+            uiState = { TaskListUiState(tasks = tasksMock) },
+            onTaskClick = { id ->
+                onTaskClickCalledId = id
+                onTaskClickCallsCount++
+            }
+        )
+
+        composeRule.onNodeWithText(taskToClick.title).performClick()
+
+        assertEquals(taskToClick.id, onTaskClickCalledId)
+        assertEquals(1, onTaskClickCallsCount)
     }
 }
